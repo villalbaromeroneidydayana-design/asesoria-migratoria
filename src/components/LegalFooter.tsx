@@ -27,10 +27,11 @@ export default function LegalFooter() {
            <div className="flex items-start gap-4">
               <span className="bg-gold-500/10 p-2.5 rounded-full text-gold-500 shrink-0 border border-gold-500/20"><PhoneCall size={22} /></span>
               <div>
-                 <h4 className="text-white font-bold mb-1 text-base">Teléfono local US</h4>
+                 <h4 className="text-white font-bold mb-1 text-base">Contacto Directo</h4>
                  <a href={`tel:${firmData.phone}`} className="text-gold-500 hover:text-gold-400 font-medium text-base underline decoration-gold-500/30 underline-offset-4">{firmData.phone}</a>
-                 <div className="mt-1 text-slate-400">
-                    <a href={`https://${firmData.website}`} className="underline decoration-slate-600 underline-offset-4 hover:text-white transition">{firmData.website}</a>
+                 <div className="mt-2 space-y-1 text-slate-400">
+                    <p><a href={`mailto:${firmData.email}`} className="hover:text-white transition">{firmData.email}</a></p>
+                    <p><a href={`https://${firmData.website}`} className="underline decoration-slate-600 underline-offset-4 hover:text-white transition">{firmData.website}</a></p>
                  </div>
               </div>
            </div>
