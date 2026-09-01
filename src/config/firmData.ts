@@ -34,6 +34,8 @@ export const firmData = {
   federalJurisdictionNotice: "Práctica federal de inmigración autorizada en los 50 estados de EE. UU. bajo 8 CFR § 292.1.",
   g28Notice: "Representación formal ante USCIS y Cortes EOIR mediante Formulario G-28.",
   eoirRegisteredId: "EOIR-FH984210",
+  corporateLabel: "🏛️ Oficina Corporativa & Correspondencia Legal",
+  remoteOnlyNotice: "Aviso: Por seguridad y confidencialidad procesal, la atención presencial se realiza estrictamente con cita previa confirmada. Las evaluaciones iniciales y admisión de expedientes se gestionan 100% de manera remota y telefónica.",
   
   // URLs for footer
   termsUrl: "/terms",

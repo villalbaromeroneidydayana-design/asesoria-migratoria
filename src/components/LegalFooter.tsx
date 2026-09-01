@@ -10,11 +10,19 @@ export default function LegalFooter() {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-8 mb-8 border-b border-slate-800/50 pb-8">
            <div className="flex items-start gap-4">
-              <span className="bg-gold-500/10 p-2.5 rounded-full text-gold-500 shrink-0 border border-gold-500/20"><MapPin size={22} /></span>
-              <div>
-                 <h4 className="text-white font-bold mb-1 text-base">Oficina física verificada:</h4>
-                 <p className="text-slate-400 text-base">{firmData.officeAddress}</p>
-              </div>
+              <h4 className="font-bold text-gold-500 mb-4">{firmData.corporateLabel}</h4>
+              <ul className="space-y-4 text-sm text-slate-400">
+                 <li className="flex items-start gap-3">
+                    <MapPin className="text-gold-500 shrink-0 mt-0.5" size={18} />
+                    <span className="leading-relaxed">
+                       {firmData.officeAddress}
+                       <br />
+                       <span className="text-xs text-slate-500 mt-2 block italic">
+                          {firmData.remoteOnlyNotice}
+                       </span>
+                    </span>
+                 </li>
+              </ul>
            </div>
            <div className="flex items-start gap-4">
               <span className="bg-gold-500/10 p-2.5 rounded-full text-gold-500 shrink-0 border border-gold-500/20"><PhoneCall size={22} /></span>

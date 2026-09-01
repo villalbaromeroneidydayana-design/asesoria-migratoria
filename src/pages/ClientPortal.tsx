@@ -9,6 +9,7 @@ import ClientActionTasks from '../components/ClientActionTasks';
 import PaymentMilestones from '../components/PaymentMilestones';
 import QuickExit from '../components/QuickExit';
 import OfficeLocator from '../components/OfficeLocator';
+import OfficialLocationsMap from '../components/OfficialLocationsMap';
 import LegalFAQAccordion from '../components/LegalFAQAccordion';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -324,6 +325,8 @@ export default function ClientPortal() {
                       </div>
                    </div>
                 </section>
+
+                <OfficialLocationsMap />
 
                 {/* Local Guides */}
                 <section className="space-y-6">
