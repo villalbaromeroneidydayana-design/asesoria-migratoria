@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, AlertTriangle, FileText, Settings, User, Users, CheckCircle, Search, MessageCircle, CheckSquare, DollarSign, Lock, PhoneCall } from 'lucide-react';
+import { Mic, MicOff, AlertTriangle, FileText, Settings, User, Users, CheckCircle, Search, MessageCircle, CheckSquare, DollarSign, Lock } from 'lucide-react';
 import OfficialLookupConsole from '../components/OfficialLookupConsole';
 import CoverLetterGenerator from '../components/CoverLetterGenerator';
 import OfficeLocator from '../components/OfficeLocator';
@@ -19,10 +19,6 @@ export default function CrmDashboard() {
   const [leads, setLeads] = useState<any[]>([]);
   const [selectedLead, setSelectedLead] = useState<any>(null);
   
-  // Phase 8: Cold Call Module State
-  const [isColdCallMode, setIsColdCallMode] = useState(false);
-  const [coldCallData, setColdCallData] = useState({ name: '', phone: '' });
-
   const recognitionRef = useRef<any>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -189,24 +185,6 @@ export default function CrmDashboard() {
        data.diagnostico.dialogo = "Entiendo que cruzaste por frontera. Necesitamos presentar tu asilo (I-589) antes de cumplir el año para protegerte y poder pedir tu permiso de trabajo.";
     }
 
-    if (lower.includes('esposa') || lower.includes('esposo') || lower.includes('casado') || lower.includes('ciudadana') || lower.includes('ciudadano')) {
-       shouldTrigger = true;
-       data.diagnostico.recomendacion = "Petición Familiar y Ajuste de Estatus";
-       data.formularios.push("I-130", "I-485", "I-765");
-       data.tarifas = 675 + 1440;
-       data.checklist = ["Certificado de Matrimonio", "Acta de Nacimiento/Ciudadanía del Cónyuge", "Pruebas de Matrimonio de Buena Fe"];
-       data.diagnostico.dialogo = "Al estar casado con ciudadano/a, el camino más seguro es una petición familiar (I-130) combinada con el Ajuste de Estatus. Esto te dará el permiso de trabajo rápido y eventualmente la residencia.";
-    }
-    
-    if (lower.includes('cbp one') || lower.includes('cbpone') || lower.includes('parole')) {
-       shouldTrigger = true;
-       data.diagnostico.recomendacion = "Permiso de Trabajo c(11) por Parole";
-       data.formularios.push("I-765");
-       data.tarifas = 470;
-       data.checklist = ["I-94 con sello de Parole", "Pasaporte", "Fotos 2x2"];
-       data.diagnostico.dialogo = "Como entraste con CBP One, tienes un Parole. Eso significa que podemos pedir tu permiso de trabajo bajo la categoría c(11) de inmediato, sin esperar al reloj de asilo.";
-    }
-
     if (lower.includes('miami')) {
        shouldTrigger = true;
        data.diagnostico.alertas.push("Jurisdicción: Corte de Miami. Alta congestión, prepararse para Master Calendar rápido.");
@@ -235,20 +213,15 @@ export default function CrmDashboard() {
               receiptNumber: foundReceipt || extractedNumbers.receiptNumber 
            });
        }
-       
-       const clientName = isColdCallMode ? coldCallData.name : selectedLead?.firstName;
-       const clientPhone = isColdCallMode ? coldCallData.phone : selectedLead?.phone;
-       const entryType = lower.includes('frontera') ? "EWI" : (isColdCallMode ? "UNKNOWN" : selectedLead?.entryType || "UNKNOWN");
-       const state = lower.includes('miami') ? "FL" : (isColdCallMode ? "" : selectedLead?.state || "");
 
        data.json = {
           client_data: { 
-             first_name: clientName || "Unknown",
-             last_name: isColdCallMode ? "" : selectedLead?.lastName || "Unknown",
-             a_number: foundANumber || (isColdCallMode ? "" : selectedLead?.aNumber || ""),
-             phone: clientPhone || "",
-             entry_type: entryType,
-             current_state: state
+             first_name: selectedLead?.firstName || "Unknown",
+             last_name: selectedLead?.lastName || "Unknown",
+             a_number: foundANumber || selectedLead?.aNumber || "",
+             phone: selectedLead?.phone || "",
+             entry_type: lower.includes('frontera') ? "EWI" : (selectedLead?.entryType || "UNKNOWN"), 
+             current_state: lower.includes('miami') ? "FL" : (selectedLead?.state || "") 
           },
           immigration_path: data.diagnostico.recomendacion,
           forms_required: data.formularios,
@@ -366,62 +339,29 @@ export default function CrmDashboard() {
            </a>
         </div>
 
-        {/* Phase 7 & 8: Leads / Cold Call Mode Toggle */}
-        <div className="mb-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
-           <div className="flex items-center justify-between mb-4">
-              <h3 className="text-emerald-400 font-bold text-sm flex items-center gap-2">
-                 {isColdCallMode ? <PhoneCall size={16} className="text-orange-400" /> : <Users size={16}/>} 
-                 {isColdCallMode ? 'Llamada en Frío (Prospectos Manuales)' : 'Prospectos Entrantes (Web)'}
-              </h3>
-              <button 
-                 onClick={() => setIsColdCallMode(!isColdCallMode)}
-                 className={`text-xs px-3 py-1.5 rounded-full font-bold transition ${isColdCallMode ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-orange-500/20 text-orange-400 border border-orange-500/30 hover:bg-orange-500/30'}`}
+        {/* Phase 7: Leads selector */}
+        {leads.length > 0 && (
+           <div className="mb-6 bg-slate-800 p-4 rounded-xl border border-slate-700">
+              <h3 className="text-emerald-400 font-bold mb-3 text-sm flex items-center gap-2"><Users size={16}/> Prospectos Entrantes (Web)</h3>
+              <select 
+                 className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white font-bold"
+                 value={selectedLead?.id || ''}
+                 onChange={(e) => {
+                    const l = leads.find(x => x.id === e.target.value);
+                    setSelectedLead(l);
+                    if (l && l.services && l.services.length > 0) {
+                       setSelectedServiceId(l.services[0]);
+                    }
+                 }}
               >
-                 {isColdCallMode ? 'Ver Web Leads' : 'Modo Cold Call'}
-              </button>
+                 {leads.map((l:any) => (
+                    <option key={l.id} value={l.id}>
+                       {l.firstName} {l.lastName} - {l.phone} ({l.state})
+                    </option>
+                 ))}
+              </select>
            </div>
-           
-           {isColdCallMode ? (
-              <div className="grid grid-cols-2 gap-3 animate-in fade-in">
-                 <input 
-                    type="text" 
-                    placeholder="Nombre del Prospecto"
-                    value={coldCallData.name}
-                    onChange={(e) => setColdCallData({...coldCallData, name: e.target.value})}
-                    className="bg-slate-900 border border-slate-600 rounded-lg p-3 text-white font-bold placeholder-slate-500 focus:border-orange-500"
-                 />
-                 <input 
-                    type="tel" 
-                    placeholder="Teléfono a Llamar"
-                    value={coldCallData.phone}
-                    onChange={(e) => setColdCallData({...coldCallData, phone: e.target.value})}
-                    className="bg-slate-900 border border-slate-600 rounded-lg p-3 text-white font-bold placeholder-slate-500 focus:border-orange-500"
-                 />
-              </div>
-           ) : (
-              leads.length > 0 ? (
-                 <select 
-                    className="w-full bg-slate-900 border border-slate-600 rounded-lg p-3 text-white font-bold"
-                    value={selectedLead?.id || ''}
-                    onChange={(e) => {
-                       const l = leads.find(x => x.id === e.target.value);
-                       setSelectedLead(l);
-                       if (l && l.services && l.services.length > 0) {
-                          setSelectedServiceId(l.services[0]);
-                       }
-                    }}
-                 >
-                    {leads.map((l:any) => (
-                       <option key={l.id} value={l.id}>
-                          {l.firstName} {l.lastName} - {l.phone} ({l.state})
-                       </option>
-                    ))}
-                 </select>
-              ) : (
-                 <p className="text-slate-500 text-sm">No hay prospectos en la base de datos.</p>
-              )
-           )}
-        </div>
+        )}
 
         {copilotData ? (
           <div className="space-y-6 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -518,11 +458,9 @@ export default function CrmDashboard() {
                {(() => {
                   const srv = servicesCatalog.find(s => s.id === selectedServiceId)!;
                   const honorarios = 2000;
-                  const targetClient = isColdCallMode ? coldCallData : selectedLead;
-                  const clientPhone = targetClient?.phone?.replace(/\D/g, '') || "";
-                  const clientName = targetClient?.firstName || targetClient?.name || '';
-                  const uniqueLink = !isColdCallMode && selectedLead ? `https://bufete-hernandez.vercel.app/client?service=${srv.id}&id=${selectedLead.id}` : `https://bufete-hernandez.vercel.app/client?service=${srv.id}`;
-                  const quoteMsg = `Hola ${clientName}, soy el equipo del Bufete de Asesoría Francisco Hernandez.\n\nTras analizar tu caso, recomendamos iniciar: ${srv.name}.\n\nCotización Oficial:\n- Honorarios de Preparación: $${honorarios}\n- Tasas USCIS: $${srv.uscisFee}\n- Total Estimado: $${honorarios + srv.uscisFee}\n\nPara iniciar tu trámite formalmente, completa tus datos oficiales aquí:\n${uniqueLink}`;
+                  const clientPhone = selectedLead?.phone?.replace(/\D/g, '') || "";
+                  const uniqueLink = selectedLead ? `https://bufetelegal.com/client?service=${srv.id}&id=${selectedLead.id}` : `https://bufetelegal.com/client?service=${srv.id}`;
+                  const quoteMsg = `Hola ${selectedLead?.firstName || ''}, soy el equipo del Abogado Francisco Hernandez.\n\nTras analizar tu caso, recomendamos iniciar: ${srv.name}.\n\nCotización Oficial:\n- Honorarios: $${honorarios}\n- Tasas USCIS: $${srv.uscisFee}\n- Total Estimado: $${honorarios + srv.uscisFee}\n\nEntra a tu portal seguro para continuar:\n${uniqueLink}`;
                   
                   return (
                      <div className="bg-slate-900/50 p-4 rounded-lg border border-slate-700 mb-6">
@@ -536,8 +474,8 @@ export default function CrmDashboard() {
                            <span>Total:</span> <span>${2000 + srv.uscisFee}</span>
                         </div>
                         
-                        <a href={clientPhone ? `https://wa.me/${clientPhone}?text=${encodeURIComponent(quoteMsg)}` : '#'} target={clientPhone ? "_blank" : "_self"} rel="noreferrer" className={`mt-4 w-full font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition shadow-lg ${clientPhone ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20' : 'bg-slate-700 text-slate-500 cursor-not-allowed'}`}>
-                           <MessageCircle size={18} /> {clientPhone ? 'Enviar Cotización por WhatsApp' : 'Ingresa Teléfono para Enviar'}
+                        <a href={`https://wa.me/${clientPhone}?text=${encodeURIComponent(quoteMsg)}`} target="_blank" rel="noreferrer" className="mt-4 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-600/20">
+                           <MessageCircle size={18} /> Enviar Cotización por WhatsApp
                         </a>
                      </div>
                   );
@@ -553,21 +491,14 @@ export default function CrmDashboard() {
                   </div>
 
                   <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2"><CheckSquare size={16} className="text-emerald-500" /> Plantillas de Acción Inmediata (WhatsApp)</h4>
-                  {isColdCallMode ? (
-                     <div className="bg-orange-500/10 p-4 rounded-lg border border-orange-500/20 text-sm text-orange-200">
-                        <p className="font-bold mb-1">Modo Llamada en Frío Activo</p>
-                        <p>No olvide guiar al prospecto a llenar la evaluación en el portal para convertirlo en cliente oficial en la Base de Datos.</p>
-                     </div>
-                  ) : (
-                     <div className="grid gap-3">
-                        <a href={`https://wa.me/${selectedLead?.phone?.replace(/\D/g, '') || ''}?text=${encodeURIComponent('Hola ' + (selectedLead?.firstName||'') + ', te escribo del bufete. Por favor sube las pruebas faltantes a tu portal.')}`} target="_blank" rel="noreferrer" className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded border border-slate-700 text-sm transition text-center">
-                           📲 Solicitar Pruebas Faltantes
-                        </a>
-                        <a href={`https://wa.me/${selectedLead?.phone?.replace(/\D/g, '') || ''}?text=${encodeURIComponent('Recordatorio: Tu cita de biométricos está programada. No olvides llevar tu pasaporte.')}`} target="_blank" rel="noreferrer" className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded border border-slate-700 text-sm transition text-center">
-                           📅 Enviar Recordatorio de Cita
-                        </a>
-                     </div>
-                  )}
+                  <div className="grid gap-3">
+                     <a href={`https://wa.me/${selectedLead?.phone?.replace(/\D/g, '') || ''}?text=${encodeURIComponent('Hola ' + (selectedLead?.firstName||'') + ', te escribo del bufete. Por favor sube las pruebas faltantes a tu portal.')}`} target="_blank" rel="noreferrer" className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded border border-slate-700 text-sm transition text-center">
+                        📲 Solicitar Pruebas Faltantes
+                     </a>
+                     <a href={`https://wa.me/${selectedLead?.phone?.replace(/\D/g, '') || ''}?text=${encodeURIComponent('Recordatorio: Tu cita de biométricos está programada. No olvides llevar tu pasaporte.')}`} target="_blank" rel="noreferrer" className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded border border-slate-700 text-sm transition text-center">
+                        📅 Enviar Recordatorio de Cita
+                     </a>
+                  </div>
                </div>
 
                {/* Buscador de Cortes (EOIR) / Oficinas (USCIS) para acceso rápido del abogado */}
@@ -582,20 +513,7 @@ export default function CrmDashboard() {
                  <Mic size={48} className="text-slate-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-400 mb-2">Teleprompter Inactivo</h3>
-              
-              {isColdCallMode ? (
-                 <div className="mt-4 max-w-md mx-auto text-left bg-slate-800 p-5 rounded-lg border border-slate-700">
-                    <h4 className="text-orange-400 font-bold text-sm uppercase tracking-wider mb-2">Guión de Apertura (Llamada en Frío)</h4>
-                    <p className="text-slate-300 text-sm leading-relaxed italic">
-                       "Hola {coldCallData.name || 'Señor/a'}, soy del equipo del Bufete de Asesoría Migratoria Francisco Hernandez. Vemos que estuvo averiguando sobre procesos migratorios. ¿Le llamo en un buen momento para una breve evaluación gratuita sobre su caso?"
-                    </p>
-                    <p className="mt-4 text-xs text-slate-500 border-t border-slate-700 pt-3">
-                       Deje que el cliente hable sobre su caso. El sistema escuchará palabras como "frontera", "esposa", o "CBP One" y mostrará la cotización correcta.
-                    </p>
-                 </div>
-              ) : (
-                 <p className="max-w-sm mx-auto">El análisis automático comenzará al escuchar palabras clave de inmigración durante la llamada.</p>
-              )}
+              <p className="max-w-sm mx-auto">El análisis automático comenzará al escuchar palabras clave de inmigración durante la llamada.</p>
            </div>
         )}
       </div>
