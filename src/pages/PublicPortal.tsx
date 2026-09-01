@@ -9,8 +9,13 @@ import ImmigrationNewsFeed from '../components/ImmigrationNewsFeed';
 import LegalFAQAccordion from '../components/LegalFAQAccordion';
 import OfficeLocator from '../components/OfficeLocator';
 import ImmigrationActivityMap from '../components/ImmigrationActivityMap';
+import LanguageSwitcher from '../components/LanguageSwitcher';
+import LegalCredentialsBadge from '../components/LegalCredentialsBadge';
+import HeroUtilityCards from '../components/HeroUtilityCards';
+import { useTranslation } from 'react-i18next';
 
 export default function PublicPortal() {
+  const { t } = useTranslation();
   const categories = getServicesByCategory();
   const [activeTab, setActiveTab] = useState<ServiceCategory>('Protección Humanitaria y Cortes');
   
@@ -23,17 +28,19 @@ export default function PublicPortal() {
   return (
     <div className="min-h-screen bg-navy-950 font-sans selection:bg-gold-500/30">
       <QuickExit />
+      <LegalCredentialsBadge variant="header" />
       {/* Navbar */}
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center relative z-20">
         <div className="flex items-center gap-3">
           <Scale className="text-gold-500 w-8 h-8" />
-          <span className="text-2xl font-bold tracking-wide text-white font-serif">Bufete Legal de Inmigración</span>
+          <span className="text-2xl font-bold tracking-wide text-white font-serif">{t('publicPortal.title')}</span>
         </div>
         <div className="flex items-center gap-6">
-          <a href="/client" className="text-slate-300 hover:text-white transition font-medium">Mi Caso Seguro</a>
-          <a href="/crm" className="text-slate-500 hover:text-white transition text-sm">Acceso Interno</a>
+          <LanguageSwitcher />
+          <a href="/client" className="text-slate-300 hover:text-white transition font-medium">{t('publicPortal.nav.myCase')}</a>
+          <a href="/crm" className="text-slate-500 hover:text-white transition text-sm">{t('publicPortal.nav.internalAccess')}</a>
           <a href="/client" className="bg-gold-500 hover:bg-gold-400 text-navy-950 px-6 py-2.5 rounded-lg font-bold transition shadow-[0_0_15px_rgba(234,179,8,0.3)] hover:shadow-[0_0_25px_rgba(234,179,8,0.5)]">
-            Evaluación Rápida
+            {t('publicPortal.nav.quickEvaluation')}
           </a>
         </div>
       </nav>
@@ -44,16 +51,19 @@ export default function PublicPortal() {
 
          <div className="max-w-3xl mb-12">
             <h1 className="text-5xl md:text-6xl font-serif font-bold mb-6 leading-[1.1] text-white">
-              Defendiendo tus Derechos Migratorios con Firmeza y Verdad
+              {t('publicPortal.hero.heading')}
             </h1>
             <p className="text-xl text-slate-300 mb-10 leading-relaxed font-light">
-              Asesoría legal experta en asilo, TPS y ajustes de estatus. No arriesgues tu futuro en Estados Unidos. Confía en profesionales acreditados con décadas de experiencia.
+              {t('publicPortal.hero.subheading')}
             </p>
             <a href="/client" className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 text-navy-950 px-8 py-4 rounded-xl font-bold text-lg transition shadow-xl shadow-gold-500/20 w-full sm:w-auto transform hover:-translate-y-1">
                <PhoneCall size={22} className="opacity-80" /> 
-               Habla con un Abogado Acreditado Ahora
+               {t('publicPortal.hero.cta')}
             </a>
          </div>
+
+         {/* Hero Utility Cards */}
+         <HeroUtilityCards />
 
          {/* Authority Card */}
          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 border border-slate-700/50 shadow-2xl relative overflow-hidden mt-16 max-w-5xl">
@@ -83,7 +93,7 @@ export default function PublicPortal() {
                      
                      <a href={firmData.verificationDirectoryUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold py-2.5 px-4 rounded-lg transition border border-slate-600 hover:border-gold-500/50 group w-full shadow-md">
                         <ShieldCheck size={16} className="text-gold-500 group-hover:text-gold-400 shrink-0" />
-                        Verificar Licencia en TexasBar.com <ExternalLink size={14} className="text-slate-400 group-hover:text-white shrink-0" />
+                        {t('publicPortal.lawyerInfo.verifyLicense')} <ExternalLink size={14} className="text-slate-400 group-hover:text-white shrink-0" />
                      </a>
                   </div>
                </div>
@@ -91,7 +101,7 @@ export default function PublicPortal() {
                {/* Memberships & Dynamic Cases */}
                <div className="flex flex-col h-full justify-center border-t border-slate-700/50 pt-8 md:border-0 md:pt-0">
                   <div className="mb-6">
-                     <p className="text-slate-400 text-sm mb-1 uppercase tracking-wider font-semibold">Jurisdicción de Práctica:</p>
+                     <p className="text-slate-400 text-sm mb-1 uppercase tracking-wider font-semibold">{t('publicPortal.lawyerInfo.jurisdictionLabel')}</p>
                      <p className="text-white text-sm font-medium">{firmData.practiceJurisdiction}</p>
                      <p className="text-slate-500 text-xs mt-1">{firmData.admissionCourts}</p>
                   </div>
@@ -110,15 +120,15 @@ export default function PublicPortal() {
                <div className="grid grid-cols-2 md:grid-cols-1 gap-6 text-center md:text-right border-t border-slate-700/50 pt-8 md:border-0 md:pt-0 md:border-l md:border-slate-700/50 md:pl-12">
                   <div>
                      <div className="text-3xl font-bold text-white mb-1">{firmData.successMetrics.yearsExp}</div>
-                     <div className="text-slate-400 text-sm">de Experiencia Legal</div>
+                     <div className="text-slate-400 text-sm">{t('publicPortal.lawyerInfo.experienceLabel')}</div>
                   </div>
                   <div>
                      <div className="text-3xl font-bold text-white mb-1">{firmData.successMetrics.casesResolved}</div>
-                     <div className="text-slate-400 text-sm">Casos Resueltos</div>
+                     <div className="text-slate-400 text-sm">{t('publicPortal.lawyerInfo.resolvedCasesLabel')}</div>
                   </div>
                   <div className="col-span-2 md:col-span-1">
                      <div className="text-3xl font-bold text-white mb-1">{firmData.successMetrics.approvalRate}</div>
-                     <div className="text-slate-400 text-sm">Tasa de Aprobación</div>
+                     <div className="text-slate-400 text-sm">{t('publicPortal.lawyerInfo.approvalRateLabel')}</div>
                   </div>
                </div>
             </div>
@@ -126,8 +136,8 @@ export default function PublicPortal() {
 
          {/* Interactive Services Catalog */}
          <div className="mt-24 max-w-6xl mx-auto">
-            <h2 className="text-3xl font-serif font-bold text-white mb-4 text-center">Catálogo de Servicios Migratorios</h2>
-            <p className="text-slate-400 text-center mb-10">Seleccione el área de práctica para ver los requisitos, formularios y tasas oficiales vigentes.</p>
+            <h2 className="text-3xl font-serif font-bold text-white mb-4 text-center">{t('publicPortal.services.title')}</h2>
+            <p className="text-slate-400 text-center mb-10">{t('publicPortal.services.subtitle')}</p>
             
             {/* Tabs */}
             <div className="flex flex-wrap justify-center gap-3 mb-10">
@@ -154,9 +164,9 @@ export default function PublicPortal() {
                      <div className="flex justify-between items-start mb-4 relative z-10">
                         <span className="bg-slate-800 text-gold-400 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-700">{service.code}</span>
                         {service.uscisFee === 0 ? (
-                           <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider">Tasa USCIS: Gratis</span>
+                           <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider">{t('publicPortal.services.uscisFeeFree')}</span>
                         ) : (
-                           <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Tasa USCIS: ${service.uscisFee}</span>
+                           <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">{t('publicPortal.services.uscisFee')}{service.uscisFee}</span>
                         )}
                      </div>
                      
@@ -165,10 +175,10 @@ export default function PublicPortal() {
                      
                      <div className="mt-auto relative z-10">
                         <p className="text-xs text-slate-500 mb-4 flex items-center gap-1.5">
-                           <ShieldCheck size={14} className="text-gold-500" /> Requiere {service.requiredDocs.length} documentos clave
+                           <ShieldCheck size={14} className="text-gold-500" /> {t('publicPortal.services.requires')} {service.requiredDocs.length} {t('publicPortal.services.keyDocs')}
                         </p>
                         <a href={`/client?service=${service.id}`} className="block w-full text-center bg-slate-800 hover:bg-gold-500 hover:text-navy-950 text-white font-bold py-3 px-4 rounded-xl transition flex justify-center items-center gap-2 group-hover:shadow-[0_0_20px_rgba(234,179,8,0.2)]">
-                           Iniciar Trámite <ChevronRight size={16} />
+                           {t('publicPortal.services.startProcess')} <ChevronRight size={16} />
                         </a>
                      </div>
                   </div>

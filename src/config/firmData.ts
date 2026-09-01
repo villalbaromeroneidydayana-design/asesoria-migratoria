@@ -9,7 +9,7 @@ export const firmData = {
   verificationDirectoryUrl: "https://www.texasbar.com",
   officeAddress: "800 W Weatherford St, Fort Worth, TX 76102",
   phone: "+1 (817) 335-2331",
-  whatsappNumber: "+18173352331",
+  whatsappNumber: "805308077769",
   website: "www.franciscohernandez.com",
   
   practiceJurisdiction: "Práctica Federal de Inmigración en los 50 Estados (8 CFR § 292.1)",

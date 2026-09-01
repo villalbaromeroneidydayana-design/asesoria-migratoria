@@ -1,0 +1,85 @@
+{
+  "publicPortal": {
+    "title": "Immigration Law Firm",
+    "nav": {
+      "myCase": "My Secure Case",
+      "internalAccess": "Internal Access",
+      "quickEvaluation": "Quick Evaluation"
+    },
+    "hero": {
+      "heading": "Defending Your Immigration Rights with Firmness and Truth",
+      "subheading": "Expert legal advice on asylum, TPS, and status adjustments. Do not risk your future in the United States. Trust accredited professionals with decades of experience.",
+      "cta": "Speak with an Accredited Attorney Now"
+    },
+    "lawyerInfo": {
+      "verifyLicense": "Verify License on TexasBar.com",
+      "jurisdictionLabel": "Practice Jurisdiction:",
+      "experienceLabel": "of Legal Experience",
+      "resolvedCasesLabel": "Cases Resolved",
+      "approvalRateLabel": "Approval Rate"
+    },
+    "services": {
+      "title": "Immigration Services Catalog",
+      "subtitle": "Select the practice area to view requirements, forms, and current official fees.",
+      "uscisFeeFree": "USCIS Fee: Free",
+      "uscisFee": "USCIS Fee: $",
+      "requires": "Requires",
+      "keyDocs": "key documents",
+      "startProcess": "Start Process"
+    }
+  },
+  "clientPortal": {
+    "banner": {
+      "title": "Ironclad Privacy:",
+      "desc1": "Your data is protected under Attorney-Client Privilege and 256-bit SSL encryption.",
+      "desc2": "We never share information with ICE or immigration enforcement agencies."
+    },
+    "sidebar": {
+      "backBtn": "← Back to Portal",
+      "title": "My Secure Case",
+      "intakeForm": "Intake Form",
+      "roadmap": "Your Roadmap",
+      "assistedBy": "Legally assisted by:"
+    },
+    "intake": {
+      "title": "Intake Form",
+      "subtitle": "Please enter your real biographic data. This information will be used to generate the official drafts of your applications.",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "state": "Current State of Residence",
+      "phone": "Phone / WhatsApp",
+      "phoneDisclaimer": "We will only contact you privately via phone call or end-to-end encrypted WhatsApp.",
+      "address": "US Address",
+      "addressOptional": "(Optional for this evaluation)",
+      "aNumber": "A-Number",
+      "aNumberOptional": "(Optional)",
+      "entryType": "US Entry Method",
+      "entryOptions": {
+        "cbp": "CBP One / Humanitarian Parole",
+        "visa": "Entry with Visa",
+        "ewi": "Entry without inspection (EWI)"
+      },
+      "entryDate": "Exact Entry Date",
+      "consentTitle": "Legal Consent and Confidentiality",
+      "consentDesc": "I understand that this information is protected by attorney-client privilege. I authorize the use of these data exclusively to evaluate my case and generate my immigration forms.",
+      "submitBtn": "Continue to My Roadmap"
+    },
+    "roadmap": {
+      "title": "Roadmap:",
+      "strategy": "Strategy defined based on your entry:",
+      "strategyCbp": "CBP One / Parole",
+      "strategyEwi": "Without Inspection (EWI)",
+      "strategyVisa": "Visa",
+      "formsTitle": "Required Official Forms",
+      "formsSubtitle": "The system has selected the following forms based on your entry method",
+      "uscisTitle": "USCIS Mailings",
+      "uscisDesc": "You must mail your complete physical package to the following official address:",
+      "eoirTitle": "EOIR Courts",
+      "eoirDesc1": "When entering without inspection, constantly check the automated system at",
+      "eoirDesc2": "using your A-Number:",
+      "licenseTitle": "License in",
+      "licenseDesc": "With the USCIS Notice of Action, you are eligible to apply for your temporary license at the DMV in",
+      "licenseBtn": "View Requirements"
+    }
+  }
+}

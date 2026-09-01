@@ -1,0 +1,85 @@
+{
+  "publicPortal": {
+    "title": "Bufete Legal de Inmigración",
+    "nav": {
+      "myCase": "Mi Caso Seguro",
+      "internalAccess": "Acceso Interno",
+      "quickEvaluation": "Evaluación Rápida"
+    },
+    "hero": {
+      "heading": "Defendiendo tus Derechos Migratorios con Firmeza y Verdad",
+      "subheading": "Asesoría legal experta en asilo, TPS y ajustes de estatus. No arriesgues tu futuro en Estados Unidos. Confía en profesionales acreditados con décadas de experiencia.",
+      "cta": "Habla con un Abogado Acreditado Ahora"
+    },
+    "lawyerInfo": {
+      "verifyLicense": "Verificar Licencia en TexasBar.com",
+      "jurisdictionLabel": "Jurisdicción de Práctica:",
+      "experienceLabel": "de Experiencia Legal",
+      "resolvedCasesLabel": "Casos Resueltos",
+      "approvalRateLabel": "Tasa de Aprobación"
+    },
+    "services": {
+      "title": "Catálogo de Servicios Migratorios",
+      "subtitle": "Seleccione el área de práctica para ver los requisitos, formularios y tasas oficiales vigentes.",
+      "uscisFeeFree": "Tasa USCIS: Gratis",
+      "uscisFee": "Tasa USCIS: $",
+      "requires": "Requiere",
+      "keyDocs": "documentos clave",
+      "startProcess": "Iniciar Trámite"
+    }
+  },
+  "clientPortal": {
+    "banner": {
+      "title": "Privacidad Blindada:",
+      "desc1": "Tus datos están protegidos bajo secreto profesional (Attorney-Client Privilege) y cifrado SSL de 256 bits.",
+      "desc2": "Jamás compartimos información con ICE ni agencias de control migratorio."
+    },
+    "sidebar": {
+      "backBtn": "← Volver al Portal",
+      "title": "Mi Caso Seguro",
+      "intakeForm": "Formulario de Admisión",
+      "roadmap": "Tu Hoja de Ruta",
+      "assistedBy": "Asistido legalmente por:"
+    },
+    "intake": {
+      "title": "Formulario de Admisión",
+      "subtitle": "Por favor, ingrese sus datos biográficos reales. Esta información se utilizará para generar los borradores oficiales de sus trámites.",
+      "firstName": "Nombres",
+      "lastName": "Apellidos",
+      "state": "Estado de Residencia Actual",
+      "phone": "Teléfono / WhatsApp",
+      "phoneDisclaimer": "Solo te contactaremos de manera privada por llamada o WhatsApp cifrado de extremo a extremo.",
+      "address": "Dirección en EE. UU.",
+      "addressOptional": "(Opcional en esta evaluación)",
+      "aNumber": "A-Number",
+      "aNumberOptional": "(Opcional)",
+      "entryType": "Vía de Entrada a EE. UU.",
+      "entryOptions": {
+        "cbp": "CBP One / Parole Humanitario",
+        "visa": "Entrada con Visa",
+        "ewi": "Entrada sin inspección"
+      },
+      "entryDate": "Fecha Exacta de Entrada",
+      "consentTitle": "Consentimiento y Confidencialidad Legal",
+      "consentDesc": "Entiendo que esta información está protegida por el privilegio abogado-cliente. Autorizo a utilizar estos datos exclusivamente para evaluar mi caso y generar mis formularios migratorios.",
+      "submitBtn": "Continuar a Mi Hoja de Ruta"
+    },
+    "roadmap": {
+      "title": "Hoja de Ruta:",
+      "strategy": "Estrategia definida basada en su ingreso:",
+      "strategyCbp": "CBP One / Parole",
+      "strategyEwi": "Sin Inspección",
+      "strategyVisa": "Visa",
+      "formsTitle": "Formularios Oficiales Requeridos",
+      "formsSubtitle": "El sistema ha seleccionado los siguientes formularios basados en su vía de entrada",
+      "uscisTitle": "Envíos USCIS",
+      "uscisDesc": "Usted debe enviar su paquete físico completo a la siguiente dirección oficial:",
+      "eoirTitle": "Cortes EOIR",
+      "eoirDesc1": "Al entrar sin inspección, revise constantemente el sistema automatizado al",
+      "eoirDesc2": "usando su A-Number:",
+      "licenseTitle": "Licencia en",
+      "licenseDesc": "Con el Notice of Action de USCIS, usted es elegible para solicitar su licencia temporal en el DMV de",
+      "licenseBtn": "Ver Requisitos"
+    }
+  }
+}
