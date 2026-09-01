@@ -4,6 +4,7 @@ import OfficialLookupConsole from '../components/OfficialLookupConsole';
 import CoverLetterGenerator from '../components/CoverLetterGenerator';
 import OfficeLocator from '../components/OfficeLocator';
 import { servicesCatalog } from '../config/servicesData';
+import { supabase } from '../lib/supabase';
 
 export default function CrmDashboard() {
   const [isListening, setIsListening] = useState(false);
@@ -69,16 +70,47 @@ export default function CrmDashboard() {
     };
   }, []); // Run once on mount
 
-  // Phase 7: Load leads from localStorage
+  // Phase 7: Load leads from Supabase (fallback to localStorage)
   useEffect(() => {
-     const stored = JSON.parse(localStorage.getItem('acesoria_leads') || '[]');
-     setLeads(stored);
-     if (stored.length > 0) {
-        setSelectedLead(stored[0]);
-        if (stored[0].services && stored[0].services.length > 0) {
-           setSelectedServiceId(stored[0].services[0]);
+     const fetchLeads = async () => {
+        if (supabase) {
+           try {
+             const { data, error } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
+             if (data && !error && data.length > 0) {
+                 const mapped = data.map((d: any) => ({
+                    id: d.id,
+                    firstName: d.first_name,
+                    lastName: d.last_name,
+                    aNumber: d.a_number,
+                    phone: d.phone,
+                    entryType: d.entry_type,
+                    entryDate: d.entry_date,
+                    state: d.state,
+                    address: d.address,
+                    services: d.services,
+                    timestamp: d.created_at
+                 }));
+                 setLeads(mapped);
+                 setSelectedLead(mapped[0]);
+                 if (mapped[0].services && mapped[0].services.length > 0) {
+                    setSelectedServiceId(mapped[0].services[0]);
+                 }
+                 return; // exit if supabase succeeded
+             }
+           } catch (e) { console.error("Supabase fetch error:", e); }
         }
-     }
+        
+        // Fallback
+        const stored = JSON.parse(localStorage.getItem('acesoria_leads') || '[]');
+        setLeads(stored);
+        if (stored.length > 0) {
+           setSelectedLead(stored[0]);
+           if (stored[0].services && stored[0].services.length > 0) {
+              setSelectedServiceId(stored[0].services[0]);
+           }
+        }
+     };
+     fetchLeads();
   }, []);
 
   // Update language dynamically

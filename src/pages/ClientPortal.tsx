@@ -13,6 +13,7 @@ import OfficialLocationsMap from '../components/OfficialLocationsMap';
 import LegalFAQAccordion from '../components/LegalFAQAccordion';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../lib/supabase';
 
 export default function ClientPortal() {
   const { t } = useTranslation();
@@ -97,10 +98,10 @@ export default function ClientPortal() {
   const lockboxInfo = getLockbox(formData.state);
   const packagesInfo = getPackages(formData.entryType);
 
-  const handleContinue = (e: React.FormEvent) => {
+  const handleContinue = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Phase 7: Save to local storage so CRM can read it
+    // Phase 7: Save to local storage so CRM can read it (fallback)
     const newLead = {
        id: Date.now().toString(),
        ...formData,
@@ -110,6 +111,25 @@ export default function ClientPortal() {
     const existing = JSON.parse(localStorage.getItem('acesoria_leads') || '[]');
     // Keep only latest 10 to avoid bloating localstorage
     localStorage.setItem('acesoria_leads', JSON.stringify([newLead, ...existing].slice(0, 10)));
+
+    if (supabase) {
+      try {
+        const { error } = await supabase.from('leads').insert([{
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          a_number: formData.aNumber || null,
+          entry_type: formData.entryType,
+          entry_date: formData.entryDate,
+          state: formData.state,
+          phone: formData.phone,
+          address: formData.address || null,
+          services: selectedServices.map(s => s.id)
+        }]);
+        if (error) console.error("Error saving lead to Supabase:", error);
+      } catch (err) {
+        console.error("Supabase exception:", err);
+      }
+    }
 
     setStep('roadmap');
     window.scrollTo({ top: 0, behavior: 'smooth' });
