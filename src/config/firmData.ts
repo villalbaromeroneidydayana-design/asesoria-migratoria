@@ -9,7 +9,7 @@ export const firmData = {
   verificationDirectoryUrl: "https://www.texasbar.com",
   officeAddress: "800 W Weatherford St, Fort Worth, TX 76102",
   phone: "+1 (805) 308-0777",
-  whatsappNumber: "805308077769",
+  whatsappNumber: "18053080777",
   email: "tramites.visas.u.oficial@gmail.com",
   website: "www.franciscohernandez.com",
   
