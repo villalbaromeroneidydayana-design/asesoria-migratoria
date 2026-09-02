@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teleprompter de Ventas - Bufete Hernandez</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: { 900: '#0a192f', 800: '#112240', 500: '#233554' },
+                        gold: { 500: '#c5a059', 400: '#d4af37' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col md:flex-row">
+
+    <!-- Panel Izquierdo: Escucha y Transcripción -->
+    <div class="w-full md:w-1/2 p-6 border-r border-slate-800 flex flex-col h-screen">
+        <header class="flex justify-between items-center mb-6 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="bg-navy-900 p-2 rounded-lg border border-navy-500 shadow-[0_0_15px_rgba(35,53,84,0.5)]">
+                    <i class="fa-solid fa-headset text-gold-500 text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold font-serif text-white">Teleprompter IA</h1>
+                    <p class="text-xs text-emerald-400">Powered by Gemini (Abogado Virtual)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="password" id="geminiKey" placeholder="Gemini API Key" class="bg-slate-900 border border-slate-700 rounded p-2 text-xs text-white focus:border-emerald-500" />
+                <button id="saveKeyBtn" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-3 py-2 rounded">Guardar</button>
+            </div>
+        </header>
+
+        <!-- Datos del Cliente -->
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-6 shrink-0">
+            <h3 class="text-orange-400 font-bold mb-3 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-phone text-orange-400"></i> Datos de la Llamada Actual
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+                <input type="text" id="clientName" placeholder="Nombre (Ej. Juan Perez)" class="bg-slate-950 border border-slate-700 rounded-lg p-3 text-white font-bold placeholder-slate-500 focus:border-orange-500 focus:outline-none">
+                <input type="tel" id="clientPhone" placeholder="Teléfono (Ej. 1234567890)" class="bg-slate-950 border border-slate-700 rounded-lg p-3 text-white font-bold placeholder-slate-500 focus:border-orange-500 focus:outline-none">
+            </div>
+        </div>
+
+        <!-- Transcripción -->
+        <div class="bg-slate-900 rounded-xl p-6 flex-1 flex flex-col relative shadow-inner border border-slate-800">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-4">
+                <h2 class="font-bold text-slate-300 flex items-center gap-2">
+                    Micrófono en Vivo
+                    <span id="listeningIndicator" class="hidden flex h-2 w-2 relative ml-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                </h2>
+                <button id="toggleBtn" class="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold transition shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20">
+                    <i class="fa-solid fa-microphone"></i> <span id="toggleText">Iniciar Escucha</span>
+                </button>
+            </div>
+            
+            <textarea id="transcript" class="w-full flex-1 bg-transparent border-none text-xl leading-relaxed text-slate-200 placeholder-slate-700 resize-none focus:outline-none focus:ring-0 mb-4" placeholder="Presiona 'Iniciar Escucha' o escribe la pregunta del cliente aquí..."></textarea>
+            
+            <button id="askGeminiBtn" class="w-full bg-navy-500 hover:bg-navy-400 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition shadow-lg">
+                <i class="fa-solid fa-brain"></i> Generar Respuesta Experta (Gemini)
+            </button>
+        </div>
+    </div>
+
+    <!-- Panel Derecho: Teleprompter / Cuaderno -->
+    <div class="w-full md:w-1/2 p-6 bg-slate-900/50 flex flex-col h-screen overflow-y-auto">
+        
+        <!-- Tabs Nav -->
+        <div class="flex border-b border-slate-700 mb-6 shrink-0">
+            <button id="tabAiBtn" class="flex-1 py-3 font-bold text-gold-500 border-b-2 border-gold-500 flex items-center justify-center gap-2 transition hover:bg-slate-800/50">
+                <i class="fa-solid fa-brain"></i> Abogado Virtual (IA)
+            </button>
+            <button id="tabManualBtn" class="flex-1 py-3 font-bold text-slate-400 border-b-2 border-transparent hover:text-slate-200 flex items-center justify-center gap-2 transition hover:bg-slate-800/50">
+                <i class="fa-solid fa-book-bookmark"></i> Cuaderno Legal (Offline)
+            </button>
+        </div>
+
+        <!-- Pestaña 1: IA Dinámica -->
+        <div id="tabAiContent" class="flex flex-col">
+            <!-- Guión de Apertura (Default) -->
+        <div id="openingScript" class="bg-slate-800 p-5 rounded-xl border border-slate-700 mb-6">
+            <h4 class="text-orange-400 font-bold text-sm uppercase tracking-wider mb-2">1. Guión de Apertura (Léelo al contestar)</h4>
+            <p class="text-slate-300 text-lg leading-relaxed italic border-l-4 border-orange-500 pl-4 py-2 bg-slate-900/50">
+                "Hola <span id="displayName" class="font-bold text-white">Señor/a</span>, soy del equipo del Bufete de Asesoría Migratoria Francisco Hernandez. Vemos que estuvo averiguando sobre procesos migratorios. ¿Le llamo en un buen momento para una breve consulta gratuita?"
+            </p>
+            <p class="mt-4 text-sm text-slate-500">
+                <i class="fa-solid fa-circle-info text-slate-400"></i> Deje que el cliente hable. El sistema escuchará palabras clave (Asilo, Frontera, CBP One, Esposa) y cambiará esta pantalla automáticamente.
+            </p>
+        </div>
+
+        <!-- Resultados del Análisis -->
+        <div id="analysisResult" class="hidden space-y-6 pb-8">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+                <h3 class="text-emerald-400 font-bold mb-4 uppercase text-xs tracking-widest">[2] Respuesta Generada por IA</h3>
+                
+                <div id="aiLoadingIndicator" class="hidden flex items-center gap-2 text-emerald-400 font-bold py-4">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> El Abogado Virtual está redactando la respuesta...
+                </div>
+
+                <div class="bg-navy-900/80 p-5 rounded-lg border border-navy-500 shadow-inner">
+                    <span class="text-gold-500 font-bold text-sm block mb-2">Lee esto al cliente ahora mismo:</span>
+                    <div id="aiDialog" class="text-white text-lg leading-relaxed font-serif tracking-wide whitespace-pre-wrap">"..."</div>
+                </div>
+            </div>
+
+            <!-- Cotización -->
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+                <h3 class="text-slate-400 font-bold mb-4 uppercase text-xs tracking-widest flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> [3] Enviar Cotización Oficial
+                </h3>
+                
+                <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700 mb-6">
+                    <div class="flex justify-between text-sm mb-2 text-slate-300">
+                        <span>Honorarios Legales (Base):</span> <strong>$2,000</strong>
+                    </div>
+                    <div class="flex justify-between text-sm mb-2 text-slate-300">
+                        <span>Tasas USCIS:</span> <strong id="uscisFee">$0</strong>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold text-emerald-400 border-t border-slate-700 pt-2 mt-2">
+                        <span>Total a Pagar:</span> <span id="totalFee">$2000</span>
+                    </div>
+                    
+                    <button id="whatsappBtn" class="mt-4 w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-600/20">
+                        <i class="fa-brands fa-whatsapp text-xl"></i> Enviar Cotización y Link de Pago
+                    </button>
+                    <p id="whatsappError" class="text-red-400 text-xs text-center mt-2 hidden">⚠️ Debes ingresar un número de teléfono en el panel izquierdo.</p>
+                </div>
+            </div>
+        </div> <!-- Fin Pestaña 1 -->
+
+        <!-- Pestaña 2: Cuaderno Legal Offline -->
+        <div id="tabManualContent" class="hidden flex flex-col h-full">
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 mb-4 shrink-0 flex gap-2">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500"></i>
+                    <input type="text" id="manualSearch" placeholder="Buscar: Asilo, Parole, Familiar, EWI..." class="w-full bg-slate-900 border border-slate-600 rounded-lg py-2.5 pl-10 pr-3 text-white focus:border-gold-500 focus:outline-none">
+                </div>
+                <button id="clearSearchBtn" class="bg-slate-700 hover:bg-slate-600 px-4 rounded-lg text-slate-300 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="manualResults" class="flex-1 overflow-y-auto space-y-4 pb-8">
+                <!-- Se llenará vía JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let isListening = false;
+        let recognition = null;
+        let currentDiagnosis = null;
+
+        // Elements
+        const toggleBtn = document.getElementById('toggleBtn');
+        const toggleText = document.getElementById('toggleText');
+        const listeningIndicator = document.getElementById('listeningIndicator');
+        const transcriptEl = document.getElementById('transcript');
+        const clientNameEl = document.getElementById('clientName');
+        const clientPhoneEl = document.getElementById('clientPhone');
+        const displayNameEl = document.getElementById('displayName');
+        const whatsappBtn = document.getElementById('whatsappBtn');
+        const whatsappError = document.getElementById('whatsappError');
+        
+        // Tab elements
+        const tabAiBtn = document.getElementById('tabAiBtn');
+        const tabManualBtn = document.getElementById('tabManualBtn');
+        const tabAiContent = document.getElementById('tabAiContent');
+        const tabManualContent = document.getElementById('tabManualContent');
+        const manualSearch = document.getElementById('manualSearch');
+        const manualResults = document.getElementById('manualResults');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+        // Base de Datos Offline (Cuaderno)
+        const legalDatabase = [
+            {
+                title: "Asilo Defensivo (Frontera / EWI)",
+                keywords: ["asilo", "frontera", "corte", "miedo", "deportacion", "ewi", "juez", "eoir"],
+                price: "$2,000",
+                uscis: "$0 (I-589)",
+                requirements: "Pasaporte/ID, Acta de Nacimiento. DEBE ir físicamente a un ASC (Centro de Asistencia) a tomarse las huellas biométricas una vez agendada la cita.",
+                script: "Entiendo que cruzó por frontera. Su situación requiere presentar un Asilo Defensivo antes de cumplir 1 año (1-Year Deadline) para evitar la orden de deportación. Nosotros nos encargamos de todo el papeleo pesado. Usted solo tendrá que presentarse a la toma de huellas y a sus audiencias de Corte. ¿Le envío el enlace para abrir su expediente?",
+                objection_handling: "Si dice que NO TIENE DINERO o TIENE MIEDO: 'Señor(a), si dejamos pasar el año, el juez firmará su deportación. $2,000 es una inversión para su libertad y la de su familia. Al aplicar, le conseguiremos su Permiso de Trabajo y Seguro Social, con lo que recuperará este dinero en su primera semana de trabajo legal.'"
+            },
+            {
+                title: "Petición Familiar y Ajuste (Matrimonio/Hijos)",
+                keywords: ["esposa", "esposo", "casado", "ciudadana", "ciudadano", "hijo", "peticion", "matrimonio", "i-130"],
+                price: "$2,000",
+                uscis: "$2,115 (I-130 + I-485)",
+                requirements: "Certificado de matrimonio original, acta de nacimiento de ambos. DEBE ir a un Médico Civil certificado para el examen (I-693) y a tomarse fotos y huellas.",
+                script: "Al estar casado con un ciudadano(a), el camino más rápido es hacer la Petición Familiar y Ajuste de Estatus juntos. Nosotros llenamos los paquetes complejos. Su única tarea física será hacerse el examen médico e ir a las huellas. Así conseguiremos su permiso de trabajo y su Green Card. ¿Se lo envío por WhatsApp?",
+                objection_handling: "Si dice que LO HARÁ DESPUÉS: 'Cada día que pasa sin someter esto, usted está en riesgo de que lo detenga ICE por estar indocumentado. Las tarifas de USCIS suben constantemente. Hagamos esto hoy, nosotros armamos su paquete y usted dormirá tranquilo sabiendo que su Green Card ya está en proceso.'"
+            },
+            {
+                title: "Permiso por Parole (CBP One)",
+                keywords: ["cbp", "one", "parole", "c11", "aeropuerto", "cuba", "haiti", "venezuela", "nicaragua", "sponsor"],
+                price: "$2,000",
+                uscis: "$470 (I-765)",
+                requirements: "Forma I-94 sellada, Pasaporte, Fotos 2x2. (Generalmente se envía online).",
+                script: "Como usted tiene un Parole (CBP One), la ley permite pedir su permiso de trabajo c(11) inmediatamente. Nosotros hacemos toda la radicación para que le llegue su tarjeta lo más pronto posible. Solo envíenos foto de su pasaporte y su I-94. ¿Procedemos a abrir su caso?",
+                objection_handling: "Si dice que ES CARO: 'El permiso de trabajo es su llave de oro en este país. Sin él, no puede sacar licencia de conducir, abrir cuentas de banco o tener un trabajo formal. Esos $2,000 y $470 de USCIS le abrirán las puertas al verdadero sueño americano.'"
+            },
+            {
+                title: "Visa U (Víctima de Crimen)",
+                keywords: ["asalto", "violencia", "crimen", "policia", "reporte", "visa u", "victima"],
+                price: "$2,500",
+                uscis: "$0 (I-918)",
+                requirements: "Reporte de policía detallado. DEBE haber colaborado con las autoridades. Necesitaremos firmar la Certificación Policial (Suplemento B).",
+                script: "Si usted fue víctima de un crimen y reportó a la policía, podemos buscar la Visa U. Nosotros peleamos la Certificación con el departamento de policía y armamos su paquete completo. Esto toma tiempo pero le da residencia permanente y perdona entradas ilegales. ¿Le interesa que evaluemos su reporte policial?",
+                objection_handling: "Si dice que TIENE MIEDO A LA POLICÍA/DEPORTACIÓN: 'Precisamente la Visa U fue creada para proteger a las personas indocumentadas. Al someterla, usted queda bajo la protección del gobierno. Nosotros nos encargaremos de hablar con la policía por usted. Es su boleto a la residencia permanente.'"
+            },
+            {
+                title: "TPS (Estatus de Protección Temporal)",
+                keywords: ["tps", "venezuela", "haiti", "el salvador", "honduras", "nicaragua"],
+                price: "$1,500",
+                uscis: "$545 (I-821 + I-765)",
+                requirements: "Prueba de nacionalidad (Pasaporte), pruebas de residencia continua en EE.UU. desde la fecha designada (recibos, biles).",
+                script: "Para el TPS, usted solo debe recopilar pruebas físicas de que ha vivido aquí sin salir (recibos, biles, contratos). Nosotros nos encargamos de todo el llenado oficial y de pedir su permiso de trabajo asociado al TPS. Es el camino más seguro para su nacionalidad ahora mismo.",
+                objection_handling: "Si dice que PREFIERE ESPERAR: 'El gobierno da ventanas de tiempo muy cortas para aplicar al TPS. Si se cierra la ventana, perderá la oportunidad para siempre. Tener TPS frena cualquier deportación. Iniciemos su registro hoy mismo para asegurar su lugar.'"
+            }
+        ];
+
+        function renderNotebook(filterText = "") {
+            manualResults.innerHTML = "";
+            const lowerFilter = filterText.toLowerCase();
+            
+            const filtered = legalDatabase.filter(item => {
+                if(!filterText) return true;
+                return item.title.toLowerCase().includes(lowerFilter) || 
+                       item.keywords.some(k => lowerFilter.includes(k) || k.includes(lowerFilter));
+            });
+
+            if (filtered.length === 0) {
+                manualResults.innerHTML = `<p class="text-slate-500 text-center mt-10">No se encontraron resultados para "${filterText}".</p>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-md";
+                card.innerHTML = `
+                    <h4 class="text-emerald-400 font-bold mb-2 uppercase tracking-wide border-b border-slate-700 pb-2">${item.title}</h4>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-3 text-sm">
+                        <div class="bg-slate-900/50 p-2 rounded border border-slate-700">
+                            <span class="text-slate-400 block text-xs">Honorarios Base:</span>
+                            <strong class="text-white">${item.price}</strong>
+                        </div>
+                        <div class="bg-slate-900/50 p-2 rounded border border-slate-700">
+                            <span class="text-slate-400 block text-xs">Tarifas USCIS:</span>
+                            <strong class="text-white">${item.uscis}</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <span class="text-orange-400 text-xs font-bold block mb-1"><i class="fa-solid fa-list-check"></i> Requisitos / Tareas Físicas (Cliente):</span>
+                        <p class="text-slate-300 text-sm leading-relaxed">${item.requirements}</p>
+                    </div>
+
+                    <div class="bg-navy-900/80 p-3 rounded border border-navy-500 mb-3">
+                        <span class="text-gold-500 text-xs font-bold block mb-1">Guión para leer (Apertura):</span>
+                        <p class="text-white text-sm font-serif italic">"${item.script}"</p>
+                    </div>
+
+                    ${item.objection_handling ? `
+                    <div class="bg-red-900/40 p-3 rounded border border-red-500/50">
+                        <span class="text-red-400 text-xs font-bold block mb-1"><i class="fa-solid fa-shield-halved"></i> Manejo de Objeciones (Ventas):</span>
+                        <p class="text-white text-sm font-serif italic">${item.objection_handling}</p>
+                    </div>
+                    ` : ''}
+                `;
+                manualResults.appendChild(card);
+            });
+        }
+
+        // Tab Switching Logic
+        tabAiBtn.addEventListener('click', () => {
+            tabAiBtn.classList.replace('text-slate-400', 'text-gold-500');
+            tabAiBtn.classList.replace('border-transparent', 'border-gold-500');
+            tabManualBtn.classList.replace('text-gold-500', 'text-slate-400');
+            tabManualBtn.classList.replace('border-gold-500', 'border-transparent');
+            tabAiContent.classList.remove('hidden');
+            tabManualContent.classList.add('hidden');
+        });
+
+        tabManualBtn.addEventListener('click', () => {
+            tabManualBtn.classList.replace('text-slate-400', 'text-gold-500');
+            tabManualBtn.classList.replace('border-transparent', 'border-gold-500');
+            tabAiBtn.classList.replace('text-gold-500', 'text-slate-400');
+            tabAiBtn.classList.replace('border-gold-500', 'border-transparent');
+            tabAiContent.classList.add('hidden');
+            tabManualContent.classList.remove('hidden');
+            renderNotebook(manualSearch.value);
+        });
+
+        // Search Logic
+        manualSearch.addEventListener('input', (e) => renderNotebook(e.target.value));
+        clearSearchBtn.addEventListener('click', () => {
+            manualSearch.value = "";
+            renderNotebook();
+        });
+
+        // Initialize Notebook
+        renderNotebook();
+
+        // Update display name dynamically
+        clientNameEl.addEventListener('input', (e) => {
+            displayNameEl.textContent = e.target.value || 'Señor/a';
+        });
+
+        // Speech Recognition Setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let speechTimeout = null;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'es-ES';
+
+            recognition.onresult = (event) => {
+                let text = '';
+                for (let i = 0; i < event.results.length; i++) {
+                    text += event.results[i][0].transcript + ' ';
+                }
+                transcriptEl.value = text;
+                transcriptEl.scrollTop = transcriptEl.scrollHeight;
+                
+                // Si el cliente deja de hablar por 3 segundos, la IA responde automáticamente
+                clearTimeout(speechTimeout);
+                speechTimeout = setTimeout(() => {
+                    if (transcriptEl.value.trim().length > 10) { // Solo si hay suficiente texto
+                        document.getElementById('askGeminiBtn').click();
+                    }
+                }, 3000); // 3 segundos de silencio
+            };
+
+            recognition.onend = () => {
+                if (isListening) recognition.start();
+            };
+        } else {
+            alert("Tu navegador no soporta reconocimiento de voz. Usa Chrome de escritorio.");
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            if (isListening) {
+                recognition.stop();
+                isListening = false;
+                toggleBtn.className = "flex items-center gap-2 px-5 py-2.5 rounded-full font-bold transition shadow-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20";
+                toggleText.textContent = "Iniciar Escucha";
+                toggleBtn.innerHTML = `<i class="fa-solid fa-microphone"></i> <span id="toggleText">Iniciar Escucha</span>`;
+                listeningIndicator.classList.add('hidden');
+            } else {
+                transcriptEl.value = '';
+                document.getElementById('analysisResult').classList.add('hidden');
+                document.getElementById('openingScript').classList.remove('hidden');
+                recognition.start();
+                isListening = true;
+                toggleBtn.className = "flex items-center gap-2 px-5 py-2.5 rounded-full font-bold transition shadow-lg bg-red-500 hover:bg-red-600 text-white shadow-red-500/20";
+                toggleBtn.innerHTML = `<i class="fa-solid fa-microphone-slash"></i> <span id="toggleText">Detener Audio</span>`;
+                listeningIndicator.classList.remove('hidden');
+            }
+        });
+
+        // Load API Key
+        const savedKey = localStorage.getItem('gemini_api_key');
+        if (savedKey) document.getElementById('geminiKey').value = savedKey;
+
+        document.getElementById('saveKeyBtn').addEventListener('click', () => {
+            const key = document.getElementById('geminiKey').value;
+            localStorage.setItem('gemini_api_key', key);
+            alert('API Key guardada localmente.');
+        });
+
+        // Trigger Gemini API
+        document.getElementById('askGeminiBtn').addEventListener('click', async () => {
+            const key = localStorage.getItem('gemini_api_key');
+            if (!key) {
+                document.getElementById('aiDialog').textContent = "⚠️ ADVERTENCIA: No has ingresado tu Gemini API Key. Ponla en la casilla superior derecha y presiona 'Guardar' para que la IA funcione.";
+                document.getElementById('openingScript').classList.add('hidden');
+                document.getElementById('analysisResult').classList.remove('hidden');
+                return;
+            }
+            
+            const question = transcriptEl.value;
+            if (!question.trim()) {
+                document.getElementById('aiDialog').textContent = "⚠️ El micrófono no ha escuchado nada o no has escrito ninguna pregunta.";
+                document.getElementById('openingScript').classList.add('hidden');
+                document.getElementById('analysisResult').classList.remove('hidden');
+                return;
+            }
+
+            // Detener el micrófono mientras piensa
+            if (isListening) toggleBtn.click();
+
+            document.getElementById('openingScript').classList.add('hidden');
+            document.getElementById('analysisResult').classList.remove('hidden');
+            document.getElementById('aiLoadingIndicator').classList.remove('hidden');
+            document.getElementById('aiDialog').textContent = "";
+
+            const systemPrompt = `Eres un verdadero Abogado de Inmigración Experto de EE. UU. hablando por teléfono con un cliente. Tienes conocimiento actualizado de todos los procesos de USCIS y cortes (EOIR).
+REGLA 1: Tu labor principal es DIAGNOSTICAR. Como los clientes a veces ocultan información o no dicen toda la verdad, DEBES hacer preguntas indagatorias, estratégicas y muy específicas si notas que falta información crucial para su caso (ej. "¿Cuándo entraste exactamente?", "¿Tienes récord criminal?", "¿Entraste con visa o cruzaste?"). 
+REGLA 2: No des la respuesta final general inmediatamente si falta información; en su lugar, dale al asesor la pregunta exacta que debe hacerle al cliente para descubrir la verdad.
+REGLA 3: Una vez tengas el panorama claro, infórmale de "pe a pa" qué debe hacer y cuál es su situación legal exacta.
+REGLA 4: Eres un MAESTRO VENDEDOR. Si el cliente pone objeciones (trabas, dice que es caro, que tiene miedo o que lo hará después), debes darle al asesor los mejores argumentos persuasivos para convencerlo. Hazle ver que hacer el trámite es la única forma de vivir tranquilo, sin miedo a la deportación, y de tener un mejor futuro (permiso de trabajo, seguro social, licencia). Convéncelo.
+REGLA 5: Enfatiza que tú (el abogado) harás el máximo trabajo pesado por él para darle un servicio premium, pero indícale qué cosas físicas estrictas DEBE hacer él (ej. ir a un ASC para huellas, ir a un médico).
+REGLA 6: Toda la información debe ser clara, concisa y sin jerga. Sé breve (máximo 2-3 párrafos cortos) porque el asesor leerá esto en voz alta.`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: systemPrompt + "\n\nPREGUNTA O SITUACIÓN DEL CLIENTE: " + question }] }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+                
+                const answer = data.candidates[0].content.parts[0].text;
+                document.getElementById('aiDialog').textContent = answer;
+                
+                // Set default quote values based on AI analysis
+                if (answer.toLowerCase().includes('asilo')) {
+                    document.getElementById('uscisFee').textContent = '$0';
+                    document.getElementById('totalFee').textContent = '$2000';
+                    currentDiagnosis = { rec: "Asilo Defensivo/Afirmativo", uscis: 0, serviceId: 'asylum' };
+                } else if (answer.toLowerCase().includes('petición') || answer.toLowerCase().includes('ajuste')) {
+                    document.getElementById('uscisFee').textContent = '$2115';
+                    document.getElementById('totalFee').textContent = '$4115';
+                    currentDiagnosis = { rec: "Petición Familiar y Ajuste", uscis: 2115, serviceId: 'family' };
+                } else {
+                    document.getElementById('uscisFee').textContent = '$470';
+                    document.getElementById('totalFee').textContent = '$2470';
+                    currentDiagnosis = { rec: "Trámite Sugerido por IA", uscis: 470, serviceId: 'work-permit' };
+                }
+            } catch (err) {
+                document.getElementById('aiDialog').textContent = "Error conectando a Gemini: " + err.message;
+            } finally {
+                document.getElementById('aiLoadingIndicator').classList.add('hidden');
+            }
+        });
+
+        // Trigger manual analysis on typing (REMOVED: Now we use the Ask Gemini button)
+        // transcriptEl.addEventListener('input', (e) => analyzeText(e.target.value));
+
+        whatsappBtn.addEventListener('click', () => {
+            const phone = clientPhoneEl.value.replace(/\D/g, '');
+            const name = clientNameEl.value || 'Estimado cliente';
+            if (!phone) {
+                whatsappError.classList.remove('hidden');
+                return;
+            }
+            whatsappError.classList.add('hidden');
+            
+            if (!currentDiagnosis) return alert("Debe generarse un diagnóstico primero (hable o escriba).");
+
+            const serviceId = currentDiagnosis.serviceId || 'consultation';
+            const honorarios = 2000;
+            const uscis = currentDiagnosis.uscis;
+            const total = honorarios + uscis;
+            
+            const link = `https://bufete-hernandez.vercel.app/client?service=${serviceId}`;
+            
+            const msg = `Hola ${name}, soy el equipo del Bufete de Asesoría Migratoria Francisco Hernandez.\n\nTras analizar su caso en nuestra llamada, recomendamos iniciar su proceso de: *${currentDiagnosis.rec}*.\n\n*Cotización Oficial:*\n- Honorarios de Preparación: $${honorarios}\n- Tasas Oficiales USCIS: $${uscis}\n- Total Estimado: $${total}\n\nPara iniciar su trámite formalmente, complete sus datos en nuestra plataforma segura:\n${link}`;
+
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        });
+    </script>
+</body>
+</html>

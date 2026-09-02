@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PublicPortal from './pages/PublicPortal';
 import ClientPortal from './pages/ClientPortal';
 import CrmDashboard from './pages/CrmDashboard';
+import BondRefundLanding from './pages/BondRefundLanding';
 
 function App() {
   return (
@@ -15,6 +16,9 @@ function App() {
         
         {/* CRM / AI Copilot */}
         <Route path="/crm" element={<CrmDashboard />} />
+        
+        {/* Landing Page Independiente - Fianzas */}
+        <Route path="/fianzas" element={<BondRefundLanding />} />
       </Routes>
     </BrowserRouter>
   );
