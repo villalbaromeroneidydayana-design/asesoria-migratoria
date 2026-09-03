@@ -272,15 +272,15 @@ const BondRefundLanding: React.FC = () => {
           <div className="p-8 md:p-12 relative z-10 flex flex-col md:flex-row items-center gap-8">
             <div className="flex-1 text-center md:text-left">
               <h2 className="text-2xl md:text-3xl font-black text-white mb-4 flex items-center justify-center md:justify-start gap-3">
-                <span>🤝</span> Programa de Aliados: Gana $100 USD en Efectivo
+                <span>🤝</span> Programa de Aliados: Ayuda y Gana
               </h2>
               <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                ¿Conoces a un familiar o amigo que pagó fianza en efectivo a ICE? Ayúdalo a no perder su dinero y recibe una comisión directa:
+                Ayuda a un familiar a rescatar sus miles de dólares del gobierno y recibe $100 de agradecimiento. Muchos familiares dan por perdido su dinero por miedo o por no tener el recibo. Al compartirles la información, los ayudas a recuperar lo que con tanto sacrificio pagaron, y nosotros te premiamos con $100 USD en cuanto se tramite su caso.
               </p>
               <ol className="text-slate-300 text-sm space-y-3 mb-8 text-left max-w-lg mx-auto md:mx-0 list-decimal list-inside">
-                <li><strong className="text-white">Comparte</strong> el enlace de nuestra plataforma con tu conocido.</li>
-                <li><strong className="text-white">Pídele que ingrese</strong> tu nombre o teléfono en la casilla de referido al enviar su consulta.</li>
-                <li><strong className="text-white">Recibe $100 USD</strong> vía Zelle o transferencia bancaria en cuanto radiquemos y procesemos su expediente formal.</li>
+                <li><strong className="text-white">Comparte</strong> el enlace de nuestra plataforma.</li>
+                <li><strong className="text-white">Pídeles que ingresen</strong> tu nombre o teléfono al enviar su consulta.</li>
+                <li><strong className="text-white">Te transferimos $100 USD</strong> de agradecimiento en cuanto procesemos su expediente.</li>
               </ol>
               <a 
                 href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent('Hola, deseo más información sobre el programa de referidos para ganar comisiones.')}`}
@@ -360,6 +360,21 @@ const BondRefundLanding: React.FC = () => {
               </button>
               <p className="text-[10px] text-slate-400 text-center mt-3"><i className="fa-solid fa-lock"></i> Sus datos están protegidos y son confidenciales.</p>
             </form>
+
+            {/* Alternativa Directa a WhatsApp */}
+            <div className="mt-8 pt-8 border-t border-slate-200 text-center">
+              <h4 className="text-lg font-black text-slate-700 mb-2">🔒 ¿Prefieres no dejar datos aquí?</h4>
+              <p className="text-sm text-slate-500 mb-6">No te preocupes. Puedes escribirnos de forma 100% confidencial y privada directamente a nuestro WhatsApp personal sin llenar ningún formulario.</p>
+              <a 
+                href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent('Hola, deseo realizar una consulta privada sin llenar el formulario.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition shadow-lg text-lg flex justify-center items-center gap-2"
+              >
+                <i className="fa-brands fa-whatsapp text-2xl"></i>
+                <span>Hablar por Privado en WhatsApp</span>
+              </a>
+            </div>
           </div>
 
         </div>
