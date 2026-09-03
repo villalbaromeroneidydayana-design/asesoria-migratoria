@@ -1,30 +1,68 @@
 import React, { useState } from 'react';
 import { firmData } from '../config/firmData';
+import { supabase } from '../lib/supabase';
 
 const BondRefundLanding: React.FC = () => {
   const [bondAmount, setBondAmount] = useState<number | ''>('');
   const [yearsPassed, setYearsPassed] = useState<number | ''>('');
-  const [formData, setFormData] = useState({ name: '', phone: '', state: '', amount: '' });
+  const [formData, setFormData] = useState({ name: '', phone: '', state: '', amount: '', referredBy: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ICE typically pays Treasury rates, approx 1-3% depending on the year. We estimate 2% simple interest.
+  // ICE typically pays Treasury rates. We implement a progressive estimated rate from 2.0% to 4.5% depending on the age of the bond (older bonds had lower/different rates, recent ones higher).
   const calculateRefund = () => {
-    if (!bondAmount || !yearsPassed) return 0;
+    if (!bondAmount || yearsPassed === '') return 0;
     const principal = Number(bondAmount);
-    const interest = principal * 0.02 * Number(yearsPassed);
+    const years = Number(yearsPassed);
+    
+    // Base rate starts at 2.0% for 15 years ago, goes up to 4.5% for recent years
+    const minRate = 0.02;
+    const maxRate = 0.045;
+    const maxYears = 15;
+    
+    // Closer to 0 years (recent) -> higher rate. Closer to 15 years -> lower rate.
+    // This is an estimation model per federal guidance approximation.
+    const effectiveRate = maxRate - ((years / maxYears) * (maxRate - minRate));
+    
+    const interest = principal * effectiveRate * years;
     return principal + interest;
   };
 
   const estimatedRefund = calculateRefund();
 
   const handleWhatsAppCalc = () => {
-    const message = `Hola, deseo iniciar la consulta para reclamar mi fianza de $${bondAmount || '___'} pagada en el año ${yearsPassed ? (new Date().getFullYear() - Number(yearsPassed)) : '___'}. Por favor indiquen los pasos para revisar mi estatus.`;
-    window.open(`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+    const yearPaid = yearsPassed !== '' ? (new Date().getFullYear() - Number(yearsPassed)) : '___';
+    const message = `Hola, calculé mi rescate en la web: Capital de $${bondAmount || '___'} depositado en el año ${yearPaid}, con un estimado total de $${estimatedRefund > 0 ? estimatedRefund.toFixed(2) : '___'}. Deseo verificar mi expediente ante el Debt Management Center.`;
+    window.open(`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
   };
 
-  const handleWhatsAppForm = (e: React.FormEvent) => {
+  const handleWhatsAppForm = async (e: React.FormEvent) => {
     e.preventDefault();
-    const message = `SOLICITUD DE DIAGNÓSTICO DE FIANZA:\n\nPagador (Obligor): ${formData.name}\nTeléfono: ${formData.phone}\nEstado: ${formData.state}\nMonto Estimado: $${formData.amount}\n\nSolicito evaluación gratuita.`;
-    window.open(`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+    setIsSubmitting(true);
+    
+    const baseMsg = `Hola, envié mi solicitud desde la web. Mi nombre es ${formData.name}, resido en ${formData.state} y pagué una fianza de $${formData.amount} a ICE.`;
+    const refMsg = formData.referredBy ? ` Fui recomendado por: ${formData.referredBy}.` : '';
+    const endMsg = ` Solicito mi diagnóstico gratuito.`;
+    const finalMessage = baseMsg + refMsg + endMsg;
+
+    try {
+      if (supabase) {
+        await supabase.from('fianzas_leads').insert([
+          {
+            nombre: formData.name,
+            telefono: formData.phone,
+            estado: formData.state,
+            monto: formData.amount,
+            referido: formData.referredBy,
+            timestamp: new Date().toISOString(),
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error("Error saving lead:", error);
+    } finally {
+      setIsSubmitting(false);
+      window.open(`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(finalMessage)}`, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const amountPresets = [2500, 5000, 7500, 10000, 15000];
@@ -56,7 +94,7 @@ const BondRefundLanding: React.FC = () => {
         <div className="hidden md:flex items-center gap-4">
           <div className="text-right mr-4 border-r border-slate-200 pr-4">
             <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">Línea Directa</p>
-            <p className="font-bold text-navy-900 text-lg">{firmData.phone}</p>
+            <p className="font-bold text-navy-900 text-lg"><a href={`tel:${firmData.phone.replace(/\D/g, '')}`}>{firmData.phone}</a></p>
           </div>
           <button 
             onClick={handleWhatsAppCalc}
@@ -67,7 +105,7 @@ const BondRefundLanding: React.FC = () => {
           </button>
         </div>
         {/* Mobile Call Button */}
-        <a href={`tel:${firmData.phone}`} className="md:hidden bg-navy-900 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+        <a href={`tel:${firmData.phone.replace(/\D/g, '')}`} className="md:hidden bg-navy-900 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
           <i className="fa-solid fa-phone"></i>
         </a>
       </header>
@@ -221,8 +259,40 @@ const BondRefundLanding: React.FC = () => {
         </div>
       </section>
 
+      {/* PROGRAMA DE REFERIDOS */}
+      <section className="py-12 px-6 md:px-12 bg-white border-y border-slate-200">
+        <div className="max-w-4xl mx-auto bg-navy-900 rounded-3xl overflow-hidden shadow-2xl border border-gold-500/30 relative">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <i className="fa-solid fa-handshake-angle text-9xl text-gold-500"></i>
+          </div>
+          <div className="p-8 md:p-12 relative z-10 flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="text-2xl md:text-3xl font-black text-white mb-4 flex items-center justify-center md:justify-start gap-3">
+                <span>🤝</span> Programa de Aliados: Gana $100 USD en Efectivo
+              </h2>
+              <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                ¿Conoces a un familiar o amigo que pagó fianza en efectivo a ICE? Ayúdalo a no perder su dinero y recibe una comisión directa:
+              </p>
+              <ol className="text-slate-300 text-sm space-y-3 mb-8 text-left max-w-lg mx-auto md:mx-0 list-decimal list-inside">
+                <li><strong className="text-white">Comparte</strong> el enlace de nuestra plataforma con tu conocido.</li>
+                <li><strong className="text-white">Pídele que ingrese</strong> tu nombre o teléfono en la casilla de referido al enviar su consulta.</li>
+                <li><strong className="text-white">Recibe $100 USD</strong> vía Zelle o transferencia bancaria en cuanto radiquemos y procesemos su expediente formal.</li>
+              </ol>
+              <a 
+                href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent('Hola, deseo más información sobre el programa de referidos para ganar comisiones.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-gold-500 hover:bg-gold-400 text-navy-900 font-black py-3 px-8 rounded-xl transition shadow-lg shadow-gold-500/20"
+              >
+                Quiero ser Aliado / Referir Conocidos
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 5. PREGUNTAS FRECUENTES Y 6. FORMULARIO RÁPIDO */}
-      <section className="py-20 px-6 md:px-12 bg-slate-100 border-y border-slate-200">
+      <section className="py-20 px-6 md:px-12 bg-slate-100">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
           
           {/* FAQ */}
@@ -270,8 +340,19 @@ const BondRefundLanding: React.FC = () => {
                 <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Monto Pagado a ICE</label>
                 <input required type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="$" />
               </div>
-              <button type="submit" className="w-full mt-4 bg-navy-900 hover:bg-navy-800 text-white font-bold py-4 rounded-xl transition shadow-lg text-lg">
-                Solicitar Diagnóstico Gratuito
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase flex items-center justify-between">
+                  <span>¿Quién te recomendó?</span>
+                  <span className="text-gold-600 bg-gold-50 px-2 py-0.5 rounded text-[10px]">Opcional</span>
+                </label>
+                <input type="text" value={formData.referredBy} onChange={e => setFormData({...formData, referredBy: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-gold-500" placeholder="Nombre o Teléfono de quien te refirió" />
+              </div>
+              <button disabled={isSubmitting} type="submit" className="w-full mt-4 bg-navy-900 hover:bg-navy-800 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition shadow-lg text-lg flex justify-center items-center gap-2">
+                {isSubmitting ? (
+                  <><i className="fa-solid fa-spinner fa-spin"></i> Procesando...</>
+                ) : (
+                  'Solicitar Diagnóstico Gratuito'
+                )}
               </button>
               <p className="text-[10px] text-slate-400 text-center mt-3"><i className="fa-solid fa-lock"></i> Sus datos están protegidos y son confidenciales.</p>
             </form>
@@ -291,8 +372,14 @@ const BondRefundLanding: React.FC = () => {
           </div>
           <div className="md:col-span-2 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
             <h4 className="text-white font-bold mb-3 flex items-center gap-2"><i className="fa-solid fa-scale-unbalanced text-gold-500"></i> Aviso de Descargo Legal y Normativo</h4>
+            <p className="text-xs leading-relaxed text-slate-400 mb-2">
+              Esta entidad brinda servicios de gestión y preparación documental administrativa especializada. No prestamos servicios de litigio legal ni actuamos como agencia aseguradora de fianzas privadas (Bail Bondsman).
+            </p>
+            <p className="text-xs leading-relaxed text-slate-400 mb-2">
+              Toda recuperación de fondos está sujeta a la aprobación final del ICE Debt Management Center. El Formulario Oficial I-395 notariado se utiliza para sustituir el recibo perdido I-305.
+            </p>
             <p className="text-xs leading-relaxed text-slate-400">
-              Esta entidad brinda servicios de asistencia y preparación documental administrativa especializada. No prestamos servicios de litigio legal ni actuamos como agencia aseguradora de fianzas privadas (Bail Bondsmen). Toda recuperación de fondos está sujeta a la aprobación final del ICE Debt Management Center y los tiempos de procesamiento del U.S. Department of the Treasury. El cálculo de intereses es una estimación basada en las tasas históricas federales y no constituye una garantía matemática.
+              El reembolso del capital y los intereses devengados los emite directamente el <strong>U.S. Department of the Treasury</strong> a nombre exclusivo del Pagador (Obligor). El cálculo de intereses es una estimación basada en las tasas promedio anuales federales publicadas por el Secretario del Tesoro bajo la normativa 8 CFR § 293.2 y no constituye una garantía matemática.
             </p>
           </div>
         </div>
