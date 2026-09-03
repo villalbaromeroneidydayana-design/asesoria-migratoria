@@ -270,7 +270,7 @@ const BondRefundLanding: React.FC = () => {
             <i className="fa-solid fa-handshake-angle text-9xl text-gold-500"></i>
           </div>
           <div className="p-8 md:p-12 relative z-10 flex flex-col md:flex-row items-center gap-8">
-            <div className="flex-1 text-center md:text-left">
+            <div className="flex-1 text-center md:text-left order-2 md:order-1">
               <h2 className="text-2xl md:text-3xl font-black text-white mb-4 flex items-center justify-center md:justify-start gap-3">
                 <span>🤝</span> Programa de Aliados: Ayuda y Gana
               </h2>
@@ -290,6 +290,15 @@ const BondRefundLanding: React.FC = () => {
               >
                 Quiero ser Aliado / Referir Conocidos
               </a>
+            </div>
+            
+            <div className="flex-1 relative group cursor-pointer border-4 border-gold-500/20 rounded-2xl overflow-hidden shadow-2xl hover:border-gold-500 transition-all duration-300 transform hover:-translate-y-1 order-1 md:order-2">
+              <img src="/referral-video.jpg" alt="Video Programa de Aliados" className="w-full aspect-video object-cover opacity-90 group-hover:opacity-100 transition" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 bg-gold-500/90 text-navy-900 rounded-full flex items-center justify-center text-2xl pl-1 shadow-xl group-hover:scale-110 transition-transform">
+                  <i className="fa-solid fa-play"></i>
+                </div>
+              </div>
             </div>
           </div>
         </div>
