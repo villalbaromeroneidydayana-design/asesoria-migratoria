@@ -93,20 +93,24 @@ const BondRefundLanding: React.FC = () => {
         </div>
         <div className="hidden md:flex items-center gap-4">
           <div className="text-right mr-4 border-r border-slate-200 pr-4">
-            <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">Línea Directa</p>
-            <p className="font-bold text-navy-900 text-lg"><a href={`tel:${firmData.phone.replace(/\D/g, '')}`}>{firmData.phone}</a></p>
+            <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">WhatsApp Oficial</p>
+            <p className="font-bold text-navy-900 text-lg">
+              <a href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
+                {firmData.phone}
+              </a>
+            </p>
           </div>
           <button 
             onClick={handleWhatsAppCalc}
             className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-6 rounded-lg flex items-center gap-2 transition shadow-lg shadow-emerald-900/20"
           >
             <i className="fa-brands fa-whatsapp text-xl"></i>
-            <span>WhatsApp</span>
+            <span>Iniciar Consulta</span>
           </button>
         </div>
-        {/* Mobile Call Button */}
-        <a href={`tel:${firmData.phone.replace(/\D/g, '')}`} className="md:hidden bg-navy-900 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
-          <i className="fa-solid fa-phone"></i>
+        {/* Mobile WhatsApp Button */}
+        <a href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="md:hidden bg-emerald-500 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+          <i className="fa-brands fa-whatsapp text-xl"></i>
         </a>
       </header>
 
@@ -367,7 +371,11 @@ const BondRefundLanding: React.FC = () => {
           <div>
             <h4 className="text-white font-serif font-bold text-lg mb-4">Centro Nacional de Recuperación</h4>
             <p className="mb-2"><i className="fa-solid fa-building-flag mr-2 text-gold-500"></i> Sede: {firmData.officeAddress}</p>
-            <p className="mb-2"><i className="fa-solid fa-phone mr-2 text-gold-500"></i> {firmData.phone}</p>
+            <p className="mb-2">
+              <a href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-gold-400 transition">
+                <i className="fa-brands fa-whatsapp mr-2 text-gold-500"></i> {firmData.phone}
+              </a>
+            </p>
             <p><i className="fa-solid fa-envelope mr-2 text-gold-500"></i> {firmData.email}</p>
           </div>
           <div className="md:col-span-2 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
