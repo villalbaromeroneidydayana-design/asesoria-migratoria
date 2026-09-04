@@ -7,6 +7,7 @@ const BondRefundLanding: React.FC = () => {
   const [yearsPassed, setYearsPassed] = useState<number | ''>('');
   const [formData, setFormData] = useState({ name: '', phone: '', state: '', amount: '', referredBy: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // ICE typically pays Treasury rates. We implement a progressive estimated rate from 2.0% to 4.5% depending on the age of the bond (older bonds had lower/different rates, recent ones higher).
   const calculateRefund = () => {
@@ -39,11 +40,6 @@ const BondRefundLanding: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    const baseMsg = `Hola, envié mi solicitud desde la web. Mi nombre es ${formData.name}, resido en ${formData.state} y pagué una fianza de $${formData.amount} a ICE.`;
-    const refMsg = formData.referredBy ? ` Fui recomendado por: ${formData.referredBy}.` : '';
-    const endMsg = ` Solicito mi diagnóstico gratuito.`;
-    const finalMessage = baseMsg + refMsg + endMsg;
-
     try {
       if (supabase) {
         await supabase.from('fianzas_leads').insert([
@@ -56,12 +52,12 @@ const BondRefundLanding: React.FC = () => {
             timestamp: new Date().toISOString(),
           }
         ]);
+        setIsSuccess(true);
       }
     } catch (error) {
       console.error("Error saving lead:", error);
     } finally {
       setIsSubmitting(false);
-      window.open(`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(finalMessage)}`, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -126,39 +122,43 @@ const BondRefundLanding: React.FC = () => {
         
         <div className="max-w-6xl mx-auto relative z-10 flex flex-col md:flex-row items-center gap-12">
           <div className="md:w-3/5 text-center md:text-left">
-            <h2 className="text-4xl md:text-6xl font-black mb-6 font-serif leading-[1.1] text-white">
+            <h2 className="text-5xl md:text-7xl font-black mb-6 font-serif leading-[1.1] text-white tracking-tight drop-shadow-2xl">
               ¿Pagó una Fianza en Efectivo a ICE? <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-yellow-200">Reclame su Dinero con Intereses.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-yellow-200 to-gold-400 animate-gradient-x">Reclame su Dinero con Intereses.</span>
             </h2>
             <p className="text-lg md:text-xl text-slate-300 mb-10 leading-relaxed">
               Recuperamos fondos retenidos por el gobierno federal para casos con orden de corte finalizada, salida voluntaria o deportación ejecutada. Gestionamos el cobro formal incluso si extravió el recibo original mediante la Declaración Jurada I-395 oficial.
             </p>
             
-            {/* Grid 3 Pilares */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
-                <i className="fa-solid fa-building-columns text-gold-400 text-2xl mb-2 block"></i>
-                <h3 className="font-bold text-white text-sm mb-1">Depósito Directo del Tesoro</h3>
-                <p className="text-xs text-slate-400 leading-snug">El pago no pasa por terceros; se transfiere vía ACH oficial (FMS 3881) a nombre del titular.</p>
+            {/* Grid 3 Pilares - Premium Glassmorphism */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left mt-12">
+              <div className="bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/15 transition duration-300 transform hover:-translate-y-1">
+                <i className="fa-solid fa-building-columns text-gold-400 text-3xl mb-4 block drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]"></i>
+                <h3 className="font-bold text-white text-md mb-2">Depósito Directo del Tesoro</h3>
+                <p className="text-sm text-slate-300 leading-snug">El pago no pasa por terceros; se transfiere vía ACH oficial (FMS 3881) a nombre del titular.</p>
               </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
-                <i className="fa-solid fa-file-shield text-gold-400 text-2xl mb-2 block"></i>
-                <h3 className="font-bold text-white text-sm mb-1">Solución para Recibos Perdidos</h3>
-                <p className="text-xs text-slate-400 leading-snug">Preparación de la Declaración Jurada I-395 notariada que anula la necesidad del recibo físico I-305.</p>
+              <div className="bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/15 transition duration-300 transform hover:-translate-y-1">
+                <i className="fa-solid fa-file-shield text-gold-400 text-3xl mb-4 block drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]"></i>
+                <h3 className="font-bold text-white text-md mb-2">Solución para Recibos Perdidos</h3>
+                <p className="text-sm text-slate-300 leading-snug">Preparación de la Declaración Jurada I-395 notariada que anula la necesidad del recibo físico I-305.</p>
               </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-sm">
-                <i className="fa-solid fa-magnifying-glass-chart text-gold-400 text-2xl mb-2 block"></i>
-                <h3 className="font-bold text-white text-sm mb-1">Diagnóstico Previo</h3>
-                <p className="text-xs text-slate-400 leading-snug">Comprobación de que la fianza cuenta con orden de cancelación (Formulario I-391) antes del trámite.</p>
+              <div className="bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/15 transition duration-300 transform hover:-translate-y-1">
+                <i className="fa-solid fa-magnifying-glass-chart text-gold-400 text-3xl mb-4 block drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]"></i>
+                <h3 className="font-bold text-white text-md mb-2">Diagnóstico Previo Seguro</h3>
+                <p className="text-sm text-slate-300 leading-snug">Comprobación de que la fianza cuenta con orden de cancelación antes de iniciar el trámite.</p>
               </div>
             </div>
           </div>
           
-          {/* 3. CALCULADORA */}
-          <div className="md:w-2/5 w-full">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 border-t-8 border-gold-500 text-slate-800 transform hover:-translate-y-1 transition duration-300">
-              <h3 className="text-2xl font-black text-navy-900 mb-2 text-center">Calculadora de Rescate</h3>
-              <p className="text-slate-500 text-xs text-center mb-6">Estima tu reembolso (Capital + Intereses Federales)</p>
+          {/* 3. CALCULADORA PREMIUM */}
+          <div className="md:w-2/5 w-full relative z-20">
+            <div className="absolute -inset-1 bg-gradient-to-r from-gold-400 to-emerald-500 rounded-[2rem] blur opacity-30 animate-pulse"></div>
+            <div className="relative bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl p-8 border border-white/40 text-slate-800 transform hover:-translate-y-2 transition duration-500">
+              <div className="absolute top-0 right-0 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-[2rem] shadow-md uppercase tracking-wider">
+                Evaluación Gratis
+              </div>
+              <h3 className="text-3xl font-black text-navy-900 mb-2 text-center mt-2">Calculadora de Rescate</h3>
+              <p className="text-slate-500 text-sm text-center mb-8">Estima tu reembolso (Capital + Intereses Federales)</p>
               
               <div className="space-y-4">
                 <div>
@@ -335,20 +335,27 @@ const BondRefundLanding: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 border-t-8 border-navy-900">
             <h3 className="text-2xl font-black text-navy-900 mb-2">Evaluación de Caso Rápida</h3>
             <p className="text-slate-500 text-sm mb-8">Llene sus datos para que nuestros especialistas ubiquen su fianza en el sistema federal.</p>
-            
             <form onSubmit={handleWhatsAppForm} className="space-y-5">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Nombre del Pagador (Obligor)</label>
-                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="Quien firmó los papeles de ICE" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Teléfono / WhatsApp</label>
-                <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="(123) 456-7890" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Estado Actual en EE. UU.</label>
-                <input required type="text" value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="Ej. Texas, California..." />
-              </div>
+              {isSuccess ? (
+                <div className="bg-emerald-50 text-emerald-800 p-6 rounded-xl border border-emerald-200 text-center animate-pulse">
+                  <i className="fa-solid fa-circle-check text-4xl text-emerald-500 mb-2"></i>
+                  <h4 className="font-bold text-lg">¡Datos Registrados!</h4>
+                  <p className="text-sm mt-1">Hemos recibido tu información. Por favor regresa al chat de WhatsApp con el abogado para continuar.</p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Nombre del Pagador (Obligor)</label>
+                    <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="Quien firmó los papeles de ICE" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Teléfono / WhatsApp</label>
+                    <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="(123) 456-7890" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Estado Actual en EE. UU.</label>
+                    <input required type="text" value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="Ej. Texas, California..." />
+                  </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Monto Pagado a ICE</label>
                 <input required type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="$" />
@@ -368,6 +375,8 @@ const BondRefundLanding: React.FC = () => {
                 )}
               </button>
               <p className="text-[10px] text-slate-400 text-center mt-3"><i className="fa-solid fa-lock"></i> Sus datos están protegidos y son confidenciales.</p>
+              </>
+              )}
             </form>
 
             {/* Alternativa Directa a WhatsApp */}

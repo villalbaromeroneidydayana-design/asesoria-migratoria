@@ -1,24 +1,23 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import PublicPortal from './pages/PublicPortal';
-import ClientPortal from './pages/ClientPortal';
-import CrmDashboard from './pages/CrmDashboard';
 import BondRefundLanding from './pages/BondRefundLanding';
+import CrmDashboard from './pages/CrmDashboard';
+import ClientPortal from './pages/ClientPortal';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Portal (Trust & Authority) */}
-        <Route path="/" element={<PublicPortal />} />
+        {/* Landing Page Principal Única - Fianzas */}
+        <Route path="/" element={<BondRefundLanding />} />
         
-        {/* Client Portal (Mi Caso Seguro) */}
-        <Route path="/client" element={<ClientPortal />} />
-        
-        {/* CRM / AI Copilot */}
+        {/* CRM para la Socia */}
         <Route path="/crm" element={<CrmDashboard />} />
         
-        {/* Landing Page Independiente - Fianzas */}
-        <Route path="/fianzas" element={<BondRefundLanding />} />
+        {/* Portal del Cliente para rastreo */}
+        <Route path="/client" element={<ClientPortal />} />
+        
+        {/* Wildcard to catch all other paths and redirect to root */}
+        <Route path="*" element={<BondRefundLanding />} />
       </Routes>
     </BrowserRouter>
   );
