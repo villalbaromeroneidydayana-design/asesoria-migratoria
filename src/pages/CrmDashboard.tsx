@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, FileText, Search, MessageCircle, DollarSign, Lock, Database, Download, Filter, Plus, X, FileOutput } from 'lucide-react';
+import { Users, FileText, Search, MessageCircle, Lock, Database, Download, Filter, Plus, X, FileOutput } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 

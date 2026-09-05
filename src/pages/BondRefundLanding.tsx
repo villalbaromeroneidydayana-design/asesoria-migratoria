@@ -3,7 +3,6 @@ import { firmData } from '../config/firmData';
 import { supabase } from '../lib/supabase';
 
 const BondRefundLanding: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'tramites' | 'fianzas'>('tramites');
   const [bondAmount, setBondAmount] = useState<number | ''>('');
   const [yearsPassed, setYearsPassed] = useState<number | ''>('');
   const [formData, setFormData] = useState({ name: '', phone: '', state: '', amount: '', referredBy: '', serviceType: 'Verificacion_Tramite' });
