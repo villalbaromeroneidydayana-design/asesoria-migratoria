@@ -3,37 +3,23 @@ import { firmData } from '../config/firmData';
 import { supabase } from '../lib/supabase';
 
 const BondRefundLanding: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'fianzas' | 'auditoria'>('fianzas');
+  const [activeTab, setActiveTab] = useState<'tramites' | 'fianzas'>('tramites');
   const [bondAmount, setBondAmount] = useState<number | ''>('');
   const [yearsPassed, setYearsPassed] = useState<number | ''>('');
-  const [formData, setFormData] = useState({ name: '', phone: '', state: '', amount: '', referredBy: '', serviceType: 'Fianza' });
+  const [formData, setFormData] = useState({ name: '', phone: '', state: '', amount: '', referredBy: '', serviceType: 'Verificacion_Tramite' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // ICE typically pays Treasury rates. We implement a progressive estimated rate from 2.0% to 4.5% depending on the age of the bond (older bonds had lower/different rates, recent ones higher).
-  const calculateRefund = () => {
-    if (!bondAmount || yearsPassed === '') return 0;
-    const principal = Number(bondAmount);
-    const years = Number(yearsPassed);
-    
-    // Base rate starts at 2.0% for 15 years ago, goes up to 4.5% for recent years
-    const minRate = 0.02;
-    const maxRate = 0.045;
-    const maxYears = 15;
-    
-    // Closer to 0 years (recent) -> higher rate. Closer to 15 years -> lower rate.
-    // This is an estimation model per federal guidance approximation.
-    const effectiveRate = maxRate - ((years / maxYears) * (maxRate - minRate));
-    
-    const interest = principal * effectiveRate * years;
-    return principal + interest;
-  };
-
-  const estimatedRefund = calculateRefund();
+  const amountPresets = [2500, 5000, 7500, 10000, 15000];
 
   const handleWhatsAppCalc = () => {
     const yearPaid = yearsPassed !== '' ? (new Date().getFullYear() - Number(yearsPassed)) : '___';
-    const message = `Hola, calculé mi rescate en la web: Capital de $${bondAmount || '___'} depositado en el año ${yearPaid}, con un estimado total de $${estimatedRefund > 0 ? estimatedRefund.toFixed(2) : '___'}. Deseo verificar mi expediente ante el Debt Management Center.`;
+    const message = `Hola, deseo evaluar una fianza de $${bondAmount || '___'} depositada en el año ${yearPaid} para saber qué información se puede verificar.`;
+    window.open(`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleWhatsAppGeneral = (motivo: string) => {
+    const message = `Hola, deseo iniciar una verificación sobre: ${motivo}.`;
     window.open(`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
   };
 
@@ -63,35 +49,33 @@ const BondRefundLanding: React.FC = () => {
     }
   };
 
-  const amountPresets = [2500, 5000, 7500, 10000, 15000];
-
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 selection:bg-gold-500 selection:text-navy-900 overflow-x-hidden">
       
-      {/* 1. IDENTIDAD CORPORATIVA Y CREDIBILIDAD INSTITUCIONAL */}
       {/* Top Security Bar */}
       <div className="bg-slate-900 text-slate-300 text-[10px] sm:text-xs py-2 px-4 flex flex-wrap justify-center sm:justify-between items-center gap-2 text-center border-b border-slate-700">
         <div className="flex items-center gap-2">
-          <i className="fa-solid fa-building-columns text-slate-400"></i>
-          <span>Gestión Administrativa Formal ante el ICE Debt Management Center (Williston, VT)</span>
+          <i className="fa-solid fa-shield-halved text-slate-400"></i>
+          <span>Servicio Independiente de Investigación y Orientación Documental</span>
         </div>
         <div className="flex items-center gap-2 text-emerald-400 font-bold">
           <i className="fa-solid fa-lock"></i>
-          <span>Conexión Cifrada SSL 256-Bit | Cumplimiento Federal de Protección de Datos Privados</span>
+          <span>Conexión Cifrada SSL 256-Bit | Privacidad de Datos</span>
         </div>
       </div>
 
+      {/* Header */}
       <header className="bg-white py-4 px-6 md:px-12 flex justify-between items-center shadow-md sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <i className="fa-solid fa-landmark text-navy-900 text-3xl"></i>
+          <i className="fa-solid fa-magnifying-glass-chart text-navy-900 text-3xl"></i>
           <div>
-            <h1 className="font-serif font-black text-lg md:text-xl text-navy-900 tracking-tight leading-none">Centro Nacional de Recuperación y Auditoría</h1>
-            <p className="text-xs md:text-sm text-gold-600 font-bold tracking-wide">Legal Audit & Bond Recovery Services</p>
+            <h1 className="font-serif font-black text-lg md:text-xl text-navy-900 tracking-tight leading-none">Centro Nacional de Verificación</h1>
+            <p className="text-xs md:text-sm text-gold-600 font-bold tracking-wide">Documental & Audit Services</p>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-4">
           <div className="text-right mr-4 border-r border-slate-200 pr-4">
-            <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">WhatsApp Oficial</p>
+            <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">Atención Confidencial</p>
             <p className="font-bold text-navy-900 text-lg">
               <a href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
                 {firmData.phone}
@@ -99,90 +83,75 @@ const BondRefundLanding: React.FC = () => {
             </p>
           </div>
           <button 
-            onClick={handleWhatsAppCalc}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-6 rounded-lg flex items-center gap-2 transition shadow-lg shadow-emerald-900/20"
+            onClick={() => handleWhatsAppGeneral("Verificación Documental")}
+            className="bg-navy-900 hover:bg-navy-800 text-white font-bold py-2.5 px-6 rounded-lg flex items-center gap-2 transition shadow-lg"
           >
             <i className="fa-brands fa-whatsapp text-xl"></i>
             <span>Iniciar Consulta</span>
           </button>
         </div>
-        {/* Mobile WhatsApp Button */}
-        <a href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="md:hidden bg-emerald-500 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
+        <a href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="md:hidden bg-navy-900 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg">
           <i className="fa-brands fa-whatsapp text-xl"></i>
         </a>
       </header>
 
-      {/* Aviso de Transparencia Legal (Banner) */}
-      <div className="bg-blue-50 border-b border-blue-100 text-blue-800 text-xs py-3 px-6 text-center shadow-inner">
-        <strong>Aviso Oficial:</strong> Trámite 100% administrativo y financiero. Los reembolsos son emitidos de forma directa por el Departamento del Tesoro de los Estados Unidos (U.S. Department of the Treasury) a la cuenta bancaria del pagador original (Obligor).
+      {/* Aviso de Transparencia */}
+      <div className="bg-slate-800 border-b border-slate-700 text-slate-300 text-xs py-3 px-6 text-center shadow-inner">
+        <strong>Aviso Oficial:</strong> No somos una agencia gubernamental. Somos un servicio independiente enfocado en contrastar información con bases de datos públicas y registros oficiales cuando estén disponibles.
       </div>
 
-      {/* 2. HERO SECTION */}
+      {/* 1. HERO SECTION */}
       <section className="bg-navy-900 text-white py-20 px-6 md:px-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-luminosity"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-luminosity"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-navy-900 via-navy-900/95 to-navy-900/40"></div>
         
-        <div className="max-w-6xl mx-auto relative z-10 flex flex-col md:flex-row items-center gap-12">
-          <div className="md:w-3/5 text-center md:text-left">
-            <h2 className="text-4xl md:text-6xl font-black mb-6 font-serif leading-[1.1] text-white tracking-tight drop-shadow-2xl">
-              ¿Incertidumbre en su Caso Migratorio? <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-yellow-200 to-gold-400 animate-gradient-x">Auditoría Oficial y Rescate de Fianzas.</span>
+        <div className="max-w-7xl mx-auto relative z-10 flex flex-col lg:flex-row items-center gap-12">
+          <div className="lg:w-3/5 text-center lg:text-left">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 font-serif leading-[1.1] text-white tracking-tight drop-shadow-2xl">
+              ¿PAGÓ POR UN TRÁMITE DE INMIGRACIÓN <br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-yellow-200 to-gold-400">Y NO SABE SI REALMENTE LO HICIERON?</span>
             </h2>
-            <p className="text-lg md:text-xl text-slate-300 mb-10 leading-relaxed">
-              Descubra la verdad de su expediente con nuestra <strong>Auditoría Legal Independiente</strong> y reclame los miles de dólares de su <strong>Fianza de ICE con Intereses</strong> si su caso ya fue cerrado. No trabaje a ciegas, conozca su estatus real hoy.
+            <p className="text-lg md:text-xl text-slate-300 mb-8 leading-relaxed">
+              Antes de seguir pagando, verifique qué puede comprobarse sobre su trámite, su fianza y la documentación que le entregaron.
             </p>
+
+            <div className="inline-block bg-slate-800/80 border-l-4 border-gold-500 rounded-r-xl p-4 mb-10 text-left">
+              <p className="font-bold text-white tracking-widest uppercase text-sm sm:text-base">
+                <i className="fa-solid fa-check-double text-gold-500 mr-2"></i>
+                NO ACUSAMOS. NO PROMETEMOS. VERIFICAMOS.
+              </p>
+            </div>
             
-            {/* Grid 3 Pilares - Premium Glassmorphism */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left mt-12">
-              <div className="bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/15 transition duration-300 transform hover:-translate-y-1">
-                <i className="fa-solid fa-building-columns text-gold-400 text-3xl mb-4 block drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]"></i>
-                <h3 className="font-bold text-white text-md mb-2">Depósito Directo del Tesoro</h3>
-                <p className="text-sm text-slate-300 leading-snug">El pago no pasa por terceros; se transfiere vía ACH oficial (FMS 3881) a nombre del titular.</p>
-              </div>
-              <div className="bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/15 transition duration-300 transform hover:-translate-y-1">
-                <i className="fa-solid fa-file-shield text-gold-400 text-3xl mb-4 block drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]"></i>
-                <h3 className="font-bold text-white text-md mb-2">Solución para Recibos Perdidos</h3>
-                <p className="text-sm text-slate-300 leading-snug">Preparación de la Declaración Jurada I-395 notariada que anula la necesidad del recibo físico I-305.</p>
-              </div>
-              <div className="bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] hover:bg-white/15 transition duration-300 transform hover:-translate-y-1">
-                <i className="fa-solid fa-magnifying-glass-chart text-gold-400 text-3xl mb-4 block drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]"></i>
-                <h3 className="font-bold text-white text-md mb-2">Diagnóstico Previo Seguro</h3>
-                <p className="text-sm text-slate-300 leading-snug">Comprobación de que la fianza cuenta con orden de cancelación antes de iniciar el trámite.</p>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <button 
+                onClick={() => handleWhatsAppGeneral("Verificar mi caso")}
+                className="bg-gold-500 hover:bg-gold-400 text-navy-900 font-black py-4 px-8 rounded-xl shadow-lg shadow-gold-500/20 transition transform hover:-translate-y-1 flex items-center justify-center gap-2"
+              >
+                <i className="fa-solid fa-file-shield text-xl"></i> VERIFICAR MI CASO
+              </button>
+              <button 
+                onClick={() => handleWhatsAppGeneral("Verificar mi fianza")}
+                className="bg-white/10 hover:bg-white/20 border border-white/30 text-white font-bold py-4 px-8 rounded-xl shadow-lg backdrop-blur-sm transition transform hover:-translate-y-1 flex items-center justify-center gap-2"
+              >
+                <i className="fa-solid fa-money-check-dollar text-xl"></i> ¿PAGÓ UNA FIANZA? VERIFICARLA
+              </button>
             </div>
           </div>
           
-          {/* 3. CALCULADORA PREMIUM */}
-          <div className="md:w-2/5 w-full relative z-20">
-            <div className="absolute -inset-1 bg-gradient-to-r from-gold-400 to-emerald-500 rounded-[2rem] blur opacity-30 animate-pulse"></div>
+          {/* CALCULADORA (Evaluación de Fianza) */}
+          <div className="lg:w-2/5 w-full relative z-20 mt-12 lg:mt-0">
+            <div className="absolute -inset-1 bg-gradient-to-r from-gold-400 to-slate-500 rounded-[2rem] blur opacity-20 animate-pulse"></div>
             <div className="relative bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl p-8 border border-white/40 text-slate-800 transform hover:-translate-y-2 transition duration-500">
-              <div className="absolute top-0 right-0 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-[2rem] shadow-md uppercase tracking-wider">
-                Respuesta Inmediata
-              </div>
               
-              <div className="flex bg-slate-100 rounded-xl overflow-hidden mb-6 border border-slate-200 p-1">
-                <button 
-                  onClick={() => setActiveTab('fianzas')}
-                  className={`flex-1 py-2 font-bold text-sm rounded-lg transition ${activeTab === 'fianzas' ? 'bg-white text-navy-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-navy-900'}`}
-                >
-                  Fianzas de ICE
-                </button>
-                <button 
-                  onClick={() => setActiveTab('auditoria')}
-                  className={`flex-1 py-2 font-bold text-sm rounded-lg transition ${activeTab === 'auditoria' ? 'bg-navy-900 text-white shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
-                >
-                  Auditoría de Caso
-                </button>
+              <div className="text-center mb-6">
+                <i className="fa-solid fa-magnifying-glass text-4xl text-navy-900 mb-3"></i>
+                <h3 className="text-2xl font-black text-navy-900 mb-1">Evaluación de Fianza</h3>
+                <p className="text-slate-500 text-sm">Descubra qué información podemos investigar sobre su fianza.</p>
               </div>
 
-              {activeTab === 'fianzas' ? (
-                <>
-                  <h3 className="text-3xl font-black text-navy-900 mb-2 text-center mt-2">Calculadora de Rescate</h3>
-                  <p className="text-slate-500 text-sm text-center mb-8">Estima tu reembolso (Capital + Intereses Federales)</p>
-              
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Monto Pagado a ICE</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Valor de la Fianza Pagada</label>
                   <div className="flex flex-wrap gap-2 mb-2">
                     {amountPresets.map(amt => (
                       <button 
@@ -201,7 +170,7 @@ const BondRefundLanding: React.FC = () => {
                       value={bondAmount}
                       onChange={(e) => setBondAmount(Number(e.target.value) || '')}
                       className="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 focus:border-navy-500 font-bold text-lg"
-                      placeholder="Otro monto..."
+                      placeholder="Monto exacto..."
                     />
                   </div>
                 </div>
@@ -221,183 +190,399 @@ const BondRefundLanding: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="bg-slate-900 rounded-xl p-6 text-center mt-6 shadow-inner relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-2 opacity-5">
-                    <i className="fa-solid fa-sack-dollar text-8xl text-gold-500"></i>
-                  </div>
-                  <p className="text-slate-400 text-[10px] uppercase tracking-widest font-bold mb-1 relative z-10">Total a Reclamar Estimado</p>
-                  <p className="text-4xl font-black text-emerald-400 font-serif relative z-10 tracking-tight">
-                    ${estimatedRefund > 0 ? estimatedRefund.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00'}
+                <div className="bg-slate-100 rounded-xl p-4 text-center mt-4 border border-slate-200">
+                  <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                    <i className="fa-solid fa-circle-info text-slate-400 mr-1"></i>
+                    Esta evaluación preliminar nos ayuda a entender la antigüedad del caso. <strong>Esta información es únicamente orientativa y no confirma que exista un reembolso.</strong>
                   </p>
                 </div>
 
                 <button 
                   onClick={handleWhatsAppCalc}
-                  className="w-full mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg text-lg group animate-pulse hover:animate-none"
+                  className="w-full mt-2 bg-navy-900 hover:bg-navy-800 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg text-lg group"
                 >
-                  <i className="fa-brands fa-whatsapp text-2xl group-hover:scale-110 transition"></i>
-                  <span>Consultar mi Reembolso</span>
+                  <i className="fa-solid fa-shield-halved text-xl group-hover:scale-110 transition"></i>
+                  <span>Iniciar Verificación</span>
                 </button>
-                </>
-              ) : (
-                <div className="space-y-6 py-4">
-                  <div className="text-center">
-                    <i className="fa-solid fa-file-shield text-5xl text-navy-900 mb-4"></i>
-                    <h3 className="text-2xl font-black text-navy-900 mb-2">Auditoría Oficial</h3>
-                    <p className="text-slate-500 text-sm mb-6">No asumas riesgos. Verificamos tu estatus real en el sistema gubernamental y te entregamos un reporte oficial.</p>
-                  </div>
-                  
-                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                    <ul className="text-sm text-slate-700 space-y-3 font-medium">
-                      <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-emerald-500 mt-1"></i> Verificación en base de datos de la Corte (EOIR).</li>
-                      <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-emerald-500 mt-1"></i> Rastreo de estatus real ante USCIS.</li>
-                      <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-emerald-500 mt-1"></i> Reporte Oficial entregado en PDF el mismo día.</li>
-                      <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-emerald-500 mt-1"></i> Rastreo de depósitos de Fianza.</li>
-                    </ul>
-                  </div>
-
-                  <button 
-                    onClick={() => {
-                      const message = "Hola, deseo solicitar una Auditoría de mi Caso Migratorio y conocer mi estatus real en el sistema.";
-                      window.open(`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
-                    }}
-                    className="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg text-lg group animate-pulse hover:animate-none"
-                  >
-                    <i className="fa-brands fa-whatsapp text-2xl group-hover:scale-110 transition"></i>
-                    <span>Iniciar Verificación Ahora</span>
-                  </button>
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. EL PROCESO TRANSPARENTE EN 4 PASOS */}
+      {/* 2. ¿POR QUÉ VERIFICAR ANTES DE PAGAR MÁS? */}
+      <section className="py-20 px-6 md:px-12 bg-white">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-black text-navy-900 mb-6 font-serif">¿Por qué verificar antes de pagar más?</h2>
+          <p className="text-lg text-slate-600 max-w-3xl mx-auto mb-16 leading-relaxed">
+            Muchas personas pagan durante meses por trámites migratorios sin saber exactamente qué se ha presentado, qué documentos existen o cuál es el estado de su proceso. <strong>Nuestro objetivo es ayudarle a organizar la información disponible y contrastarla con fuentes y registros oficiales cuando sea posible.</strong>
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200 relative transform transition hover:-translate-y-1 hover:shadow-lg">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner">
+                <i className="fa-solid fa-comment-dots"></i>
+              </div>
+              <h3 className="font-black text-navy-900 text-xl mb-3">LO QUE LE DIJERON</h3>
+              <p className="text-slate-600 text-sm">Las promesas verbales, garantías de éxito o tiempos de espera que le comunicó quien tomó su caso inicial.</p>
+            </div>
+            
+            <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200 relative transform transition hover:-translate-y-1 hover:shadow-lg mt-8 md:mt-0">
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner">
+                <i className="fa-solid fa-file-invoice"></i>
+              </div>
+              <h3 className="font-black text-navy-900 text-xl mb-3">LO QUE APARECE EN LA DOCUMENTACIÓN</h3>
+              <p className="text-slate-600 text-sm">Los recibos, cartas, folios y notificaciones físicas que usted tiene en su poder actualmente.</p>
+            </div>
+
+            <div className="bg-navy-900 text-white rounded-2xl p-8 border border-gold-500/30 relative transform transition hover:-translate-y-1 shadow-xl mt-8 md:mt-0">
+              <div className="w-16 h-16 bg-gold-500 text-navy-900 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg">
+                <i className="fa-solid fa-magnifying-glass-chart"></i>
+              </div>
+              <h3 className="font-black text-gold-400 text-xl mb-3">LO QUE PUDIMOS VERIFICAR</h3>
+              <p className="text-slate-300 text-sm">El cruce real de esos datos con los sistemas disponibles para saber si lo que le dijeron y lo que le dieron coincide con la realidad.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. ¿QUÉ PODEMOS VERIFICAR? */}
+      <section className="py-20 px-6 md:px-12 bg-slate-100 border-y border-slate-200">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-black text-navy-900 mb-4 font-serif">¿Qué podemos verificar?</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">Analizamos minuciosamente cuatro áreas clave de su expediente migratorio para brindarle claridad total.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex gap-6 hover:shadow-md transition">
+              <div className="text-gold-500 text-4xl shrink-0"><i className="fa-regular fa-folder-open"></i></div>
+              <div>
+                <h3 className="text-xl font-bold text-navy-900 mb-2">Trámites Migratorios</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">Verificamos la información disponible para determinar si existe evidencia de que el trámite fue presentado y cuál es el estado que puede comprobarse en los sistemas respectivos.</p>
+              </div>
+            </div>
+            
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex gap-6 hover:shadow-md transition">
+              <div className="text-gold-500 text-4xl shrink-0"><i className="fa-solid fa-user-tie"></i></div>
+              <div>
+                <h3 className="text-xl font-bold text-navy-900 mb-2">Representantes y Abogados</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">Revisamos la información disponible sobre la persona que afirma representar o gestionar el caso y contrastamos la información proporcionada por el cliente con directorios oficiales.</p>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex gap-6 hover:shadow-md transition">
+              <div className="text-gold-500 text-4xl shrink-0"><i className="fa-solid fa-file-contract"></i></div>
+              <div>
+                <h3 className="text-xl font-bold text-navy-900 mb-2">Fianzas de Inmigración</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">Investigamos la documentación relacionada con la fianza, monto, referencias, datos del Obligor y la posible procedencia de devolución, según la información disponible.</p>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 flex gap-6 hover:shadow-md transition">
+              <div className="text-gold-500 text-4xl shrink-0"><i className="fa-solid fa-list-check"></i></div>
+              <div>
+                <h3 className="text-xl font-bold text-navy-900 mb-2">Documentos y Comprobantes</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">Revisamos minuciosamente fechas, números de recibos, montos declarados y la coherencia general entre todos los documentos que le fueron proporcionados.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. EL PROCESO DE VERIFICACIÓN */}
       <section className="py-20 px-6 md:px-12 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-black text-navy-900 mb-4 font-serif">El Proceso de Rescate en 4 Pasos</h2>
-            <p className="text-slate-600 max-w-2xl mx-auto">Un flujo de trabajo estrictamente administrativo diseñado para obligar al sistema federal a liberar sus fondos.</p>
+            <h2 className="text-3xl md:text-4xl font-black text-navy-900 mb-4 font-serif">El Proceso de Verificación</h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">Un flujo estructurado, lógico y documentado para llegar a la verdad sobre su trámite.</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
             {/* Connecting line for desktop */}
             <div className="hidden md:block absolute top-12 left-1/8 right-1/8 h-1 bg-slate-200 -z-10 w-3/4 mx-auto"></div>
             
-            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center relative shadow-sm hover:shadow-md transition">
-              <div className="w-16 h-16 bg-navy-900 text-white rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-4 border-4 border-white shadow-lg">1</div>
-              <h3 className="font-bold text-navy-900 mb-2">Localización del Expediente</h3>
-              <p className="text-sm text-slate-600">Búsqueda mediante el A-Number del extranjero y confirmación de la orden de cancelación (I-391).</p>
+            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center relative shadow-sm">
+              <div className="w-16 h-16 bg-navy-900 text-white rounded-full flex items-center justify-center text-xl mx-auto mb-4 border-4 border-white shadow-lg"><i className="fa-solid fa-inbox"></i></div>
+              <h3 className="font-bold text-navy-900 mb-2 uppercase text-sm">Paso 1: Recopilamos la Información</h3>
+              <p className="text-xs text-slate-600">El cliente proporciona los documentos, recibos e información necesarios para iniciar nuestra investigación privada.</p>
             </div>
             
-            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center relative shadow-sm hover:shadow-md transition">
-              <div className="w-16 h-16 bg-navy-900 text-white rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-4 border-4 border-white shadow-lg">2</div>
-              <h3 className="font-bold text-navy-900 mb-2">Preparación Documental</h3>
-              <p className="text-sm text-slate-600">Redacción del Formulario I-395 ante notario público, actualización de domicilio y registro bancario ACH.</p>
+            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center relative shadow-sm">
+              <div className="w-16 h-16 bg-navy-900 text-white rounded-full flex items-center justify-center text-xl mx-auto mb-4 border-4 border-white shadow-lg"><i className="fa-solid fa-layer-group"></i></div>
+              <h3 className="font-bold text-navy-900 mb-2 uppercase text-sm">Paso 2: Organizamos y Contrastamos</h3>
+              <p className="text-xs text-slate-600">Comparamos nombres, fechas, números de folio, montos, recibos y demás información relevante que entregó.</p>
             </div>
 
-            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center relative shadow-sm hover:shadow-md transition">
-              <div className="w-16 h-16 bg-navy-900 text-white rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-4 border-4 border-white shadow-lg">3</div>
-              <h3 className="font-bold text-navy-900 mb-2">Radicación Oficial</h3>
-              <p className="text-sm text-slate-600">Envío físico rastreado por USPS Certified Mail ante el ICE Debt Management Center en Vermont.</p>
+            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center relative shadow-sm">
+              <div className="w-16 h-16 bg-navy-900 text-white rounded-full flex items-center justify-center text-xl mx-auto mb-4 border-4 border-white shadow-lg"><i className="fa-solid fa-globe"></i></div>
+              <h3 className="font-bold text-navy-900 mb-2 uppercase text-sm">Paso 3: Consultamos Fuentes Disponibles</h3>
+              <p className="text-xs text-slate-600">Cuando técnicamente sea posible, contrastamos la información con fuentes y sistemas oficiales correspondientes.</p>
             </div>
 
-            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center relative shadow-sm hover:shadow-md transition">
-              <div className="w-16 h-16 bg-gold-500 text-navy-900 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-4 border-4 border-white shadow-lg">4</div>
-              <h3 className="font-bold text-navy-900 mb-2">Pago Oficial Directo</h3>
-              <p className="text-sm text-slate-600">Emisión de fondos por el Departamento del Tesoro de EE. UU. directo a la cuenta del pagador.</p>
+            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center relative shadow-sm">
+              <div className="w-16 h-16 bg-gold-500 text-navy-900 rounded-full flex items-center justify-center text-xl mx-auto mb-4 border-4 border-white shadow-lg"><i className="fa-solid fa-file-pdf"></i></div>
+              <h3 className="font-bold text-navy-900 mb-2 uppercase text-sm">Paso 4: Entregamos el Resultado</h3>
+              <p className="text-xs text-slate-600">El cliente recibe un informe detallado con todo lo hallado, las inconsistencias y posibles próximos pasos.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* PROGRAMA DE REFERIDOS */}
-      <section className="py-12 px-6 md:px-12 bg-white border-y border-slate-200">
-        <div className="max-w-4xl mx-auto bg-navy-900 rounded-3xl overflow-hidden shadow-2xl border border-gold-500/30 relative">
-          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-            <i className="fa-solid fa-handshake-angle text-9xl text-gold-500"></i>
-          </div>
-          <div className="p-8 md:p-12 relative z-10 flex flex-col md:flex-row items-center gap-8">
-            <div className="flex-1 text-center md:text-left order-2 md:order-1">
-              <h2 className="text-2xl md:text-3xl font-black text-white mb-4 flex items-center justify-center md:justify-start gap-3">
-                <span>🤝</span> Programa de Aliados: Ayuda y Gana
-              </h2>
-              <p className="text-slate-300 text-sm leading-relaxed mb-6">
-                Ayuda a un familiar a rescatar sus miles de dólares del gobierno y recibe $100 de agradecimiento. Muchos familiares dan por perdido su dinero por miedo o por no tener el recibo. Al compartirles la información, los ayudas a recuperar lo que con tanto sacrificio pagaron, y nosotros te premiamos con $100 USD en cuanto se tramite su caso.
-              </p>
-              <ol className="text-slate-300 text-sm space-y-3 mb-8 text-left max-w-lg mx-auto md:mx-0 list-decimal list-inside">
-                <li><strong className="text-white">Comparte</strong> el enlace de nuestra plataforma.</li>
-                <li><strong className="text-white">Pídeles que ingresen</strong> tu nombre o teléfono al enviar su consulta.</li>
-                <li><strong className="text-white">Te transferimos $100 USD</strong> de agradecimiento en cuanto procesemos su expediente.</li>
-              </ol>
-              <a 
-                href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent('Hola, deseo más información sobre el programa de referidos para ganar comisiones.')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-gold-500 hover:bg-gold-400 text-navy-900 font-black py-3 px-8 rounded-xl transition shadow-lg shadow-gold-500/20"
-              >
-                Quiero ser Aliado / Referir Conocidos
-              </a>
-            </div>
+      {/* 5. RESULTADOS Y EL INFORME DE VERIFICACIÓN */}
+      <section className="py-20 px-6 md:px-12 bg-slate-900 border-t border-slate-800 text-white">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          
+          {/* Resultados */}
+          <div>
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-4 font-serif">Posibles Resultados</h2>
+            <p className="text-slate-400 mb-10 text-lg">Al finalizar la investigación, su trámite o fianza se clasificará bajo uno de estos estados estrictamente documentados:</p>
             
-            <div className="flex-1 relative group cursor-pointer border-4 border-gold-500/20 rounded-2xl overflow-hidden shadow-2xl hover:border-gold-500 transition-all duration-300 transform hover:-translate-y-1 order-1 md:order-2">
-              <img src="/referral-video.jpg" alt="Video Programa de Aliados" className="w-full aspect-video object-cover opacity-90 group-hover:opacity-100 transition" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 bg-gold-500/90 text-navy-900 rounded-full flex items-center justify-center text-2xl pl-1 shadow-xl group-hover:scale-110 transition-transform">
-                  <i className="fa-solid fa-play"></i>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition">
+                <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
+                <div>
+                  <h4 className="font-bold text-emerald-400">VERIFICADO</h4>
+                  <p className="text-xs text-slate-300">La información disponible presenta evidencia consistente y real.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition">
+                <div className="w-4 h-4 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.8)]"></div>
+                <div>
+                  <h4 className="font-bold text-yellow-400">EN VERIFICACIÓN</h4>
+                  <p className="text-xs text-slate-300">Existe información, pero todavía requiere comprobación adicional.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition">
+                <div className="w-4 h-4 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.8)]"></div>
+                <div>
+                  <h4 className="font-bold text-orange-400">INCONSISTENCIAS DETECTADAS</h4>
+                  <p className="text-xs text-slate-300">Encontramos diferencias importantes que deben revisarse inmediatamente.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition">
+                <div className="w-4 h-4 rounded-full bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.8)]"></div>
+                <div>
+                  <h4 className="font-bold text-red-400">NO SE PUDO VERIFICAR</h4>
+                  <p className="text-xs text-slate-300">No encontramos evidencia suficiente con la información proporcionada. <strong>Ojo: Esto no significa automáticamente un fraude</strong>, solo que los datos no pudieron ser validados en los sistemas disponibles.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition">
+                <div className="w-4 h-4 rounded-full bg-slate-500 shadow-[0_0_10px_rgba(100,116,139,0.8)]"></div>
+                <div>
+                  <h4 className="font-bold text-slate-400">INFORMACIÓN INSUFICIENTE</h4>
+                  <p className="text-xs text-slate-300">No existen suficientes datos para emitir una conclusión investigativa.</p>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* El Informe (Mockup) */}
+          <div className="relative">
+            <div className="absolute -inset-4 bg-gradient-to-r from-gold-500/20 to-blue-500/20 blur-xl rounded-[3rem]"></div>
+            <div className="bg-white rounded-2xl p-8 shadow-2xl relative border border-slate-200 text-slate-800">
+              <div className="border-b-2 border-slate-200 pb-4 mb-6 flex justify-between items-end">
+                <div>
+                  <h3 className="text-2xl font-black text-navy-900 uppercase">El Informe de Verificación</h3>
+                  <p className="text-xs text-slate-500 mt-1">Usted NO está comprando una promesa. Está comprando una investigación documentada.</p>
+                </div>
+                <i className="fa-solid fa-stamp text-4xl text-red-700/20"></i>
+              </div>
+              
+              <div className="space-y-4 text-sm font-mono bg-slate-50 p-6 rounded-lg border border-slate-200">
+                <div className="flex justify-between border-b border-slate-200 pb-2">
+                  <span className="text-slate-500">CASO ANALIZADO:</span>
+                  <span className="font-bold text-navy-900">#REV-2026-984</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200 pb-2">
+                  <span className="text-slate-500">INFO. PROPORCIONADA:</span>
+                  <span className="font-bold text-navy-900">A-Number, Recibo de Fianza</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200 pb-2">
+                  <span className="text-slate-500">FUENTES CONSULTADAS:</span>
+                  <span className="font-bold text-navy-900">EOIR, Verificación ICE</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200 pb-2">
+                  <span className="text-slate-500">DATOS COINCIDENTES:</span>
+                  <span className="font-bold text-emerald-600">Nombre, Fecha Ingreso</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200 pb-2">
+                  <span className="text-slate-500">INCONSISTENCIAS:</span>
+                  <span className="font-bold text-orange-600">Recibo no hallado en sistema</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-200 pb-2">
+                  <span className="text-slate-500">INFO. NO VERIFICABLE:</span>
+                  <span className="font-bold text-slate-600">Dirección declarada</span>
+                </div>
+                <div className="flex justify-between bg-navy-900 text-white p-3 rounded mt-4">
+                  <span className="font-bold">RESULTADO FINAL:</span>
+                  <span className="font-black text-orange-400">INCONSISTENCIAS DETECTADAS</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
-      {/* 5. PREGUNTAS FRECUENTES Y 6. FORMULARIO RÁPIDO */}
+      {/* 6. NUESTROS SERVICIOS */}
+      <section className="py-16 px-6 md:px-12 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-black text-navy-900 mb-10 text-center font-serif">Nuestros Servicios de Verificación</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 hover:border-navy-900 transition">
+              <i className="fa-solid fa-passport text-3xl text-gold-500 mb-4"></i>
+              <h4 className="font-bold text-navy-900 mb-2">Verificación de Trámite</h4>
+              <p className="text-xs text-slate-600">Validación de estatus, folios presentados y fechas en procesos activos o concluidos.</p>
+            </div>
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 hover:border-navy-900 transition">
+              <i className="fa-solid fa-money-bill-transfer text-3xl text-gold-500 mb-4"></i>
+              <h4 className="font-bold text-navy-900 mb-2">Verificación de Fianza</h4>
+              <p className="text-xs text-slate-600">Investigación de registro de pago, cancelación de orden y factibilidad de devolución.</p>
+            </div>
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 hover:border-navy-900 transition">
+              <i className="fa-solid fa-file-signature text-3xl text-gold-500 mb-4"></i>
+              <h4 className="font-bold text-navy-900 mb-2">Verificación Documental</h4>
+              <p className="text-xs text-slate-600">Análisis detallado de recibos, cartas y formas entregadas al cliente por terceros.</p>
+            </div>
+            <div className="bg-navy-900 border border-navy-800 rounded-xl p-6 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-2 opacity-10 text-gold-500 text-6xl"><i className="fa-solid fa-star"></i></div>
+              <i className="fa-solid fa-magnifying-glass-plus text-3xl text-gold-400 mb-4 relative z-10"></i>
+              <h4 className="font-bold text-white mb-2 relative z-10">Investigación Completa</h4>
+              <p className="text-xs text-slate-300 relative z-10">Combina trámite + documentos + fianza + cruce de información del representante.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. AUTORIDAD Y MENSAJE DE CONFIANZA */}
+      <section className="py-20 px-6 md:px-12 bg-slate-100 border-t border-slate-200">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-16">
+          <div className="md:w-1/2">
+            <h3 className="text-2xl font-black text-navy-900 mb-6 font-serif">¿Cómo Trabajamos?</h3>
+            <p className="text-sm text-slate-700 mb-4 leading-relaxed">
+              Somos un servicio independiente de investigación y verificación documental. Utilizamos la documentación proporcionada por el cliente y, cuando corresponde y está disponible, contrastamos la información con fuentes oficiales.
+            </p>
+            <p className="text-sm text-slate-700 mb-4 leading-relaxed font-bold text-red-800 bg-red-50 p-4 rounded-lg border border-red-100">
+              <i className="fa-solid fa-triangle-exclamation mr-2"></i> No somos ICE, USCIS, DHS ni una agencia del Gobierno de Estados Unidos. No sustituimos la representación legal de un abogado.
+            </p>
+            <p className="text-sm text-slate-700 leading-relaxed">
+              Nuestro trabajo consiste en investigar, organizar, contrastar y explicar la información disponible para empoderar al usuario.
+            </p>
+          </div>
+
+          <div className="md:w-1/2">
+            <h3 className="text-2xl font-black text-navy-900 mb-6 font-serif">Fuentes Oficiales Consultadas</h3>
+            <div className="space-y-3">
+              <a href="https://www.uscis.gov" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-white p-4 rounded-lg border border-slate-200 hover:border-navy-900 hover:shadow-md transition">
+                <i className="fa-solid fa-building-flag text-navy-900"></i>
+                <span className="font-bold text-slate-800 text-sm">USCIS (Servicios de Ciudadanía e Inmigración)</span>
+                <i className="fa-solid fa-arrow-up-right-from-square text-slate-300 ml-auto text-xs"></i>
+              </a>
+              <a href="https://www.ice.gov" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-white p-4 rounded-lg border border-slate-200 hover:border-navy-900 hover:shadow-md transition">
+                <i className="fa-solid fa-building-shield text-navy-900"></i>
+                <span className="font-bold text-slate-800 text-sm">ICE (Inmigración y Control de Aduanas)</span>
+                <i className="fa-solid fa-arrow-up-right-from-square text-slate-300 ml-auto text-xs"></i>
+              </a>
+              <a href="https://www.justice.gov/eoir" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-white p-4 rounded-lg border border-slate-200 hover:border-navy-900 hover:shadow-md transition">
+                <i className="fa-solid fa-scale-balanced text-navy-900"></i>
+                <span className="font-bold text-slate-800 text-sm">EOIR (Oficina Ejecutiva para Revisión Migratoria)</span>
+                <i className="fa-solid fa-arrow-up-right-from-square text-slate-300 ml-auto text-xs"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto mt-20 text-center">
+          <h2 className="text-2xl md:text-4xl font-black text-navy-900 mb-6 font-serif uppercase tracking-tight">
+            "SI SU ABOGADO O REPRESENTANTE HIZO EL TRABAJO, LA VERIFICACIÓN DEBERÍA PODER ENCONTRAR EVIDENCIA."
+          </h2>
+          <p className="text-xl text-slate-600 mb-10 italic">
+            Y si algo no coincide, usted tiene derecho a saberlo.
+          </p>
+          <div className="inline-block border-2 border-navy-900 px-8 py-4 rounded-xl bg-white shadow-xl">
+            <p className="font-black text-navy-900 tracking-widest uppercase md:text-lg">
+              NO ACUSAMOS. NO INVENTAMOS. NO PROMETEMOS.<br/><span className="text-gold-600">VERIFICAMOS.</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. PROGRAMA DE REFERIDOS */}
+      <section className="py-12 px-6 md:px-12 bg-white border-y border-slate-200">
+        <div className="max-w-4xl mx-auto bg-slate-900 rounded-3xl overflow-hidden shadow-2xl relative">
+          <div className="p-8 md:p-12 relative z-10 flex flex-col md:flex-row items-center gap-8">
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="text-2xl md:text-3xl font-black text-white mb-4">
+                Programa de Referidos
+              </h2>
+              <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                ¿Conoces a alguien que pagó por un trámite migratorio y no sabe qué se ha hecho realmente? Puedes recomendar nuestro servicio de verificación. Ayudemos juntos a la comunidad a encontrar respuestas y organizar su información.
+              </p>
+              <a 
+                href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent('Hola, deseo conocer cómo recomendar a alguien para que verifique su trámite.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-white text-navy-900 font-bold py-3 px-8 rounded-xl transition shadow-lg hover:bg-slate-200"
+              >
+                Saber Más
+              </a>
+            </div>
+            <div className="flex-1 relative border-4 border-slate-700 rounded-2xl overflow-hidden shadow-2xl">
+              <img src="https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=1000&auto=format&fit=crop" alt="Ayuda a la comunidad" className="w-full h-full object-cover opacity-80" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. CTA FINAL & FORMULARIO RÁPIDO */}
       <section className="py-20 px-6 md:px-12 bg-slate-100">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
           
-          {/* FAQ */}
-          <div>
-            <h2 className="text-3xl font-black text-navy-900 mb-8 font-serif">Preguntas Frecuentes</h2>
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h4 className="font-bold text-navy-900 mb-2 flex gap-2"><i className="fa-solid fa-circle-question text-gold-500 mt-1"></i> ¿Qué sucede si perdí el recibo verde/azul original (I-305)?</h4>
-                <p className="text-sm text-slate-600">Es el problema más común. La ley permite solucionar esto mediante el Formulario Oficial I-395 (Declaración Jurada). Nosotros preparamos este documento legal para que ICE proceda con el pago sin el recibo original.</p>
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h4 className="font-bold text-navy-900 mb-2 flex gap-2"><i className="fa-solid fa-circle-question text-gold-500 mt-1"></i> ¿Si a mi familiar lo deportaron, aún puedo cobrar?</h4>
-                <p className="text-sm text-slate-600">Sí. La ley federal establece que la fianza es una garantía de presentación. Si la persona cumplió con sus cortes, incluso si el resultado fue la deportación o salida voluntaria, el dinero DEBE ser devuelto.</p>
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h4 className="font-bold text-navy-900 mb-2 flex gap-2"><i className="fa-solid fa-circle-question text-gold-500 mt-1"></i> ¿A nombre de quién sale el dinero?</h4>
-                <p className="text-sm text-slate-600">El dinero se emite <strong>exclusivamente a nombre del pagador original (Obligor)</strong> que firmó el contrato de fianza (I-352). Nosotros no tocamos su dinero; el cheque del Tesoro le llega directamente a usted.</p>
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                <h4 className="font-bold text-navy-900 mb-2 flex gap-2"><i className="fa-solid fa-circle-question text-gold-500 mt-1"></i> ¿Cuánto tiempo demora el desembolso?</h4>
-                <p className="text-sm text-slate-600">Una vez radicado el paquete perfecto ante el centro de finanzas en Vermont, el Departamento del Tesoro suele tardar entre 4 a 12 semanas en procesar el cheque o depósito ACH.</p>
-              </div>
+          <div className="flex flex-col justify-center">
+            <h2 className="text-3xl md:text-5xl font-black text-navy-900 mb-6 font-serif leading-tight">
+              ¿Ya pagó por su trámite?
+            </h2>
+            <p className="text-lg text-slate-600 mb-10">
+              Antes de seguir entregando dinero, descubra qué información puede verificarse verdaderamente sobre su caso.
+            </p>
+            <div className="space-y-4">
+              <button 
+                onClick={() => handleWhatsAppGeneral("Verificar mi caso de forma completa")}
+                className="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition shadow-lg text-lg"
+              >
+                <i className="fa-solid fa-file-circle-check text-2xl"></i>
+                <span>QUIERO VERIFICAR MI CASO</span>
+              </button>
+              <button 
+                onClick={() => handleWhatsAppGeneral("Verificar el estado de mi fianza pagada")}
+                className="w-full bg-gold-500 hover:bg-gold-400 text-navy-900 font-bold py-4 rounded-xl flex items-center justify-center gap-3 transition shadow-lg text-lg"
+              >
+                <i className="fa-solid fa-money-check-dollar text-2xl"></i>
+                <span>QUIERO VERIFICAR MI FIANZA</span>
+              </button>
             </div>
           </div>
 
           {/* Formulario */}
           <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 border-t-8 border-navy-900">
-            <h3 className="text-2xl font-black text-navy-900 mb-2">Evaluación de Caso Rápida</h3>
-            <p className="text-slate-500 text-sm mb-8">Llene sus datos para que nuestros especialistas ubiquen su fianza en el sistema federal.</p>
+            <h3 className="text-2xl font-black text-navy-900 mb-2">Solicitud Rápida</h3>
+            <p className="text-slate-500 text-sm mb-6">Envíe sus datos básicos para que nuestros especialistas le contacten.</p>
             <form onSubmit={handleWhatsAppForm} className="space-y-5">
               {isSuccess ? (
                 <div className="bg-emerald-50 text-emerald-800 p-6 rounded-xl border border-emerald-200 text-center animate-pulse">
                   <i className="fa-solid fa-circle-check text-4xl text-emerald-500 mb-2"></i>
-                  <h4 className="font-bold text-lg">¡Datos Registrados!</h4>
-                  <p className="text-sm mt-1">Hemos recibido tu información. Por favor regresa al chat de WhatsApp con el abogado para continuar.</p>
+                  <h4 className="font-bold text-lg">¡Solicitud Recibida!</h4>
+                  <p className="text-sm mt-1">Por favor haga clic en cualquier botón de WhatsApp para contactarse de inmediato con el verificador.</p>
                 </div>
               ) : (
                 <>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Motivo de Consulta</label>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Servicio Requerido</label>
                     <select value={formData.serviceType} onChange={e => setFormData({...formData, serviceType: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 font-bold">
-                      <option value="Auditoria">Solicitar Auditoría de Caso</option>
-                      <option value="Fianza">Reclamo de Fianza de ICE</option>
+                      <option value="Auditoria">Verificación de Trámite o Caso</option>
+                      <option value="Fianza">Verificación de Fianza</option>
+                      <option value="Documental">Verificación Documental</option>
                     </select>
                   </div>
                   <div>
@@ -412,55 +597,27 @@ const BondRefundLanding: React.FC = () => {
                     <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Estado Actual en EE. UU.</label>
                     <input required type="text" value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="Ej. Texas, California..." />
                   </div>
-              {formData.serviceType === 'Fianza' && (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Monto Pagado a ICE</label>
-                  <input type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="$" />
-                </div>
-              )}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase flex items-center justify-between">
-                  <span>¿Quién te recomendó?</span>
-                  <span className="text-gold-600 bg-gold-50 px-2 py-0.5 rounded text-[10px]">Opcional</span>
-                </label>
-                <input type="text" value={formData.referredBy} onChange={e => setFormData({...formData, referredBy: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-gold-500" placeholder="Nombre o Teléfono de quien te refirió" />
-              </div>
-              <button disabled={isSubmitting} type="submit" className="w-full mt-4 bg-navy-900 hover:bg-navy-800 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition shadow-lg text-lg flex justify-center items-center gap-2">
-                {isSubmitting ? (
-                  <><i className="fa-solid fa-spinner fa-spin"></i> Procesando...</>
-                ) : (
-                  'Solicitar Diagnóstico Gratuito'
-                )}
-              </button>
-              <p className="text-[10px] text-slate-400 text-center mt-3"><i className="fa-solid fa-lock"></i> Sus datos están protegidos y son confidenciales.</p>
-              </>
+                  
+                  <button disabled={isSubmitting} type="submit" className="w-full mt-4 bg-navy-900 hover:bg-navy-800 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition shadow-lg text-lg flex justify-center items-center gap-2">
+                    {isSubmitting ? (
+                      <><i className="fa-solid fa-spinner fa-spin"></i> Registrando...</>
+                    ) : (
+                      'Enviar Solicitud'
+                    )}
+                  </button>
+                  <p className="text-[10px] text-slate-400 text-center mt-3"><i className="fa-solid fa-lock"></i> Sus datos son confidenciales y solo se usan para contacto inicial.</p>
+                </>
               )}
             </form>
-
-            {/* Alternativa Directa a WhatsApp */}
-            <div className="mt-8 pt-8 border-t border-slate-200 text-center">
-              <h4 className="text-lg font-black text-slate-700 mb-2">🔒 ¿Prefieres no dejar datos aquí?</h4>
-              <p className="text-sm text-slate-500 mb-6">No te preocupes. Puedes escribirnos de forma 100% confidencial y privada directamente a nuestro WhatsApp personal sin llenar ningún formulario.</p>
-              <a 
-                href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent('Hola, deseo realizar una consulta privada sin llenar el formulario.')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl transition shadow-lg text-lg flex justify-center items-center gap-2"
-              >
-                <i className="fa-brands fa-whatsapp text-2xl"></i>
-                <span>Hablar por Privado en WhatsApp</span>
-              </a>
-            </div>
           </div>
-
         </div>
       </section>
 
-      {/* 7. FOOTER INSTITUCIONAL */}
+      {/* 10. FOOTER AVISO LEGAL */}
       <footer className="bg-navy-900 text-slate-400 py-12 px-6 border-t border-slate-800 text-sm">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h4 className="text-white font-serif font-bold text-lg mb-4">Centro Nacional de Recuperación</h4>
+            <h4 className="text-white font-serif font-bold text-lg mb-4">Centro Nacional de Verificación</h4>
             <p className="mb-2"><i className="fa-solid fa-building-flag mr-2 text-gold-500"></i> Sede: {firmData.officeAddress}</p>
             <p className="mb-2">
               <a href={`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-gold-400 transition">
@@ -470,20 +627,20 @@ const BondRefundLanding: React.FC = () => {
             <p><i className="fa-solid fa-envelope mr-2 text-gold-500"></i> {firmData.email}</p>
           </div>
           <div className="md:col-span-2 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
-            <h4 className="text-white font-bold mb-3 flex items-center gap-2"><i className="fa-solid fa-scale-unbalanced text-gold-500"></i> Aviso de Descargo Legal y Normativo</h4>
+            <h4 className="text-white font-bold mb-3 flex items-center gap-2"><i className="fa-solid fa-scale-unbalanced text-gold-500"></i> Aviso Legal e Independencia</h4>
             <p className="text-xs leading-relaxed text-slate-400 mb-2">
-              Esta entidad brinda servicios de gestión y preparación documental administrativa especializada. No prestamos servicios de litigio legal ni actuamos como agencia aseguradora de fianzas privadas (Bail Bondsman).
+              Somos un servicio independiente de investigación y orientación documental. No somos ICE, USCIS, DHS ni ninguna agencia del Gobierno de Estados Unidos.
             </p>
             <p className="text-xs leading-relaxed text-slate-400 mb-2">
-              Toda recuperación de fondos está sujeta a la aprobación final del ICE Debt Management Center. El Formulario Oficial I-395 notariado se utiliza para sustituir el recibo perdido I-305.
+              La investigación realizada no constituye asesoría legal ni garantiza la aprobación de un trámite, la devolución de una fianza o cualquier resultado migratorio.
             </p>
             <p className="text-xs leading-relaxed text-slate-400">
-              El reembolso del capital y los intereses devengados los emite directamente el <strong>U.S. Department of the Treasury</strong> a nombre exclusivo del Pagador (Obligor). El cálculo de intereses es una estimación basada en las tasas promedio anuales federales publicadas por el Secretario del Tesoro bajo la normativa 8 CFR § 293.2 y no constituye una garantía matemática.
+              Una información no encontrada o no verificada no significa necesariamente que no exista. El resultado de nuestro informe depende estrictamente de la información disponible en el momento y de las fuentes públicas u oficiales que puedan consultarse técnicamente. No sustituimos a un abogado licenciado.
             </p>
           </div>
         </div>
         <div className="max-w-6xl mx-auto text-center mt-12 pt-8 border-t border-slate-800 text-xs">
-          &copy; {new Date().getFullYear()} US Bond Recovery Services. Todos los derechos reservados.
+          &copy; {new Date().getFullYear()} Centro Nacional de Verificación Documental. Todos los derechos reservados.
         </div>
       </footer>
 
