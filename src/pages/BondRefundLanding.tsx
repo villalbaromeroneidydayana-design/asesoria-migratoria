@@ -3,9 +3,10 @@ import { firmData } from '../config/firmData';
 import { supabase } from '../lib/supabase';
 
 const BondRefundLanding: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'fianzas' | 'auditoria'>('fianzas');
   const [bondAmount, setBondAmount] = useState<number | ''>('');
   const [yearsPassed, setYearsPassed] = useState<number | ''>('');
-  const [formData, setFormData] = useState({ name: '', phone: '', state: '', amount: '', referredBy: '' });
+  const [formData, setFormData] = useState({ name: '', phone: '', state: '', amount: '', referredBy: '', serviceType: 'Fianza' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -49,6 +50,7 @@ const BondRefundLanding: React.FC = () => {
             estado: formData.state,
             monto: formData.amount,
             referido: formData.referredBy,
+            tipo_servicio: formData.serviceType,
             timestamp: new Date().toISOString(),
           }
         ]);
@@ -83,8 +85,8 @@ const BondRefundLanding: React.FC = () => {
         <div className="flex items-center gap-3">
           <i className="fa-solid fa-landmark text-navy-900 text-3xl"></i>
           <div>
-            <h1 className="font-serif font-black text-lg md:text-xl text-navy-900 tracking-tight leading-none">Centro Nacional de Recuperación</h1>
-            <p className="text-xs md:text-sm text-gold-600 font-bold tracking-wide">US Bond Recovery Services</p>
+            <h1 className="font-serif font-black text-lg md:text-xl text-navy-900 tracking-tight leading-none">Centro Nacional de Recuperación y Auditoría</h1>
+            <p className="text-xs md:text-sm text-gold-600 font-bold tracking-wide">Legal Audit & Bond Recovery Services</p>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-4">
@@ -122,12 +124,12 @@ const BondRefundLanding: React.FC = () => {
         
         <div className="max-w-6xl mx-auto relative z-10 flex flex-col md:flex-row items-center gap-12">
           <div className="md:w-3/5 text-center md:text-left">
-            <h2 className="text-5xl md:text-7xl font-black mb-6 font-serif leading-[1.1] text-white tracking-tight drop-shadow-2xl">
-              ¿Pagó una Fianza en Efectivo a ICE? <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-yellow-200 to-gold-400 animate-gradient-x">Reclame su Dinero con Intereses.</span>
+            <h2 className="text-4xl md:text-6xl font-black mb-6 font-serif leading-[1.1] text-white tracking-tight drop-shadow-2xl">
+              ¿Incertidumbre en su Caso Migratorio? <br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-yellow-200 to-gold-400 animate-gradient-x">Auditoría Oficial y Rescate de Fianzas.</span>
             </h2>
             <p className="text-lg md:text-xl text-slate-300 mb-10 leading-relaxed">
-              Recuperamos fondos retenidos por el gobierno federal para casos con orden de corte finalizada, salida voluntaria o deportación ejecutada. Gestionamos el cobro formal incluso si extravió el recibo original mediante la Declaración Jurada I-395 oficial.
+              Descubra la verdad de su expediente con nuestra <strong>Auditoría Legal Independiente</strong> y reclame los miles de dólares de su <strong>Fianza de ICE con Intereses</strong> si su caso ya fue cerrado. No trabaje a ciegas, conozca su estatus real hoy.
             </p>
             
             {/* Grid 3 Pilares - Premium Glassmorphism */}
@@ -155,10 +157,28 @@ const BondRefundLanding: React.FC = () => {
             <div className="absolute -inset-1 bg-gradient-to-r from-gold-400 to-emerald-500 rounded-[2rem] blur opacity-30 animate-pulse"></div>
             <div className="relative bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl p-8 border border-white/40 text-slate-800 transform hover:-translate-y-2 transition duration-500">
               <div className="absolute top-0 right-0 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-[2rem] shadow-md uppercase tracking-wider">
-                Evaluación Gratis
+                Respuesta Inmediata
               </div>
-              <h3 className="text-3xl font-black text-navy-900 mb-2 text-center mt-2">Calculadora de Rescate</h3>
-              <p className="text-slate-500 text-sm text-center mb-8">Estima tu reembolso (Capital + Intereses Federales)</p>
+              
+              <div className="flex bg-slate-100 rounded-xl overflow-hidden mb-6 border border-slate-200 p-1">
+                <button 
+                  onClick={() => setActiveTab('fianzas')}
+                  className={`flex-1 py-2 font-bold text-sm rounded-lg transition ${activeTab === 'fianzas' ? 'bg-white text-navy-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-navy-900'}`}
+                >
+                  Fianzas de ICE
+                </button>
+                <button 
+                  onClick={() => setActiveTab('auditoria')}
+                  className={`flex-1 py-2 font-bold text-sm rounded-lg transition ${activeTab === 'auditoria' ? 'bg-navy-900 text-white shadow-sm' : 'text-slate-500 hover:text-navy-900'}`}
+                >
+                  Auditoría de Caso
+                </button>
+              </div>
+
+              {activeTab === 'fianzas' ? (
+                <>
+                  <h3 className="text-3xl font-black text-navy-900 mb-2 text-center mt-2">Calculadora de Rescate</h3>
+                  <p className="text-slate-500 text-sm text-center mb-8">Estima tu reembolso (Capital + Intereses Federales)</p>
               
               <div className="space-y-4">
                 <div>
@@ -218,7 +238,36 @@ const BondRefundLanding: React.FC = () => {
                   <i className="fa-brands fa-whatsapp text-2xl group-hover:scale-110 transition"></i>
                   <span>Consultar mi Reembolso</span>
                 </button>
-              </div>
+                </>
+              ) : (
+                <div className="space-y-6 py-4">
+                  <div className="text-center">
+                    <i className="fa-solid fa-file-shield text-5xl text-navy-900 mb-4"></i>
+                    <h3 className="text-2xl font-black text-navy-900 mb-2">Auditoría Oficial</h3>
+                    <p className="text-slate-500 text-sm mb-6">No asumas riesgos. Verificamos tu estatus real en el sistema gubernamental y te entregamos un reporte oficial.</p>
+                  </div>
+                  
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <ul className="text-sm text-slate-700 space-y-3 font-medium">
+                      <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-emerald-500 mt-1"></i> Verificación en base de datos de la Corte (EOIR).</li>
+                      <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-emerald-500 mt-1"></i> Rastreo de estatus real ante USCIS.</li>
+                      <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-emerald-500 mt-1"></i> Reporte Oficial entregado en PDF el mismo día.</li>
+                      <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-emerald-500 mt-1"></i> Rastreo de depósitos de Fianza.</li>
+                    </ul>
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      const message = "Hola, deseo solicitar una Auditoría de mi Caso Migratorio y conocer mi estatus real en el sistema.";
+                      window.open(`https://wa.me/${firmData.whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+                    }}
+                    className="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg text-lg group animate-pulse hover:animate-none"
+                  >
+                    <i className="fa-brands fa-whatsapp text-2xl group-hover:scale-110 transition"></i>
+                    <span>Iniciar Verificación Ahora</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -345,8 +394,15 @@ const BondRefundLanding: React.FC = () => {
               ) : (
                 <>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Nombre del Pagador (Obligor)</label>
-                    <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="Quien firmó los papeles de ICE" />
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Motivo de Consulta</label>
+                    <select value={formData.serviceType} onChange={e => setFormData({...formData, serviceType: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500 font-bold">
+                      <option value="Auditoria">Solicitar Auditoría de Caso</option>
+                      <option value="Fianza">Reclamo de Fianza de ICE</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Nombre Completo</label>
+                    <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="Su nombre" />
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Teléfono / WhatsApp</label>
@@ -356,10 +412,12 @@ const BondRefundLanding: React.FC = () => {
                     <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Estado Actual en EE. UU.</label>
                     <input required type="text" value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="Ej. Texas, California..." />
                   </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Monto Pagado a ICE</label>
-                <input required type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="$" />
-              </div>
+              {formData.serviceType === 'Fianza' && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase">Monto Pagado a ICE</label>
+                  <input type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-navy-500" placeholder="$" />
+                </div>
+              )}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1 uppercase flex items-center justify-between">
                   <span>¿Quién te recomendó?</span>
