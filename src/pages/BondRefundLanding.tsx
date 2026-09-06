@@ -3,8 +3,6 @@ import { firmData } from '../config/firmData';
 import { supabase } from '../lib/supabase';
 
 const BondRefundLanding: React.FC = () => {
-  const [bondAmount, setBondAmount] = useState<number | ''>('');
-  const [yearsPassed, setYearsPassed] = useState<number | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -23,8 +21,6 @@ const BondRefundLanding: React.FC = () => {
     promesas: '',
     comments: ''
   });
-
-  const amountPresets = [2500, 5000, 7500, 10000, 15000];
 
   const handleWhatsAppGeneral = (motivo: string) => {
     const message = `Hola, deseo iniciar una verificación sobre: ${motivo}.`;
