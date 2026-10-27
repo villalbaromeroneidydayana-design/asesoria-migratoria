@@ -809,13 +809,23 @@ export const ASSISTANT_AUDIOS: AssistantAudioTemplate[] = [
   },
   {
     id: 'AUD-06',
-    titulo: 'Presentación del Sitio Web Oficial y Credenciales',
-    subtitulo: 'Envío de enlace oficial, matrícula CalBar y evaluador interactivo',
+    titulo: 'Presentación de Sitio Web (Primer Contacto)',
+    subtitulo: 'Para clientes nuevos que no conocen el despacho aún',
     categoria: 'bienvenida',
     icono: 'Globe',
     duracionEstimada: '0:35 min',
     guionVoz: 'Hola, muy buenas tardes. Le saluda Estefanía, asistente legal del despacho del Licenciado David Antony Carrillo. Le comparto este audio para invitarle a conocer nuestra página web oficial: bufete guión hernandez punto vercel punto app. En nuestro portal podrá verificar las credenciales del licenciado ante la Barra de Abogados de California matrícula 177856, conocer nuestras áreas de defensa migratoria y realizar una preevaluación interactiva de su caso. Recuerde que al ser ley federal, representamos a familias en cualquiera de los 50 estados. Le dejamos el enlace en el mensaje de texto para que lo revise con calma.',
     mensajeWhatsApp: '🏛️ *BUFETE JURÍDICO | LIC. DAVID ANTONY CARRILLO*\n_Abogado Colegiado en Inmigración y Cortes Federales de EE.UU._\n\nEstimado/a cliente, le saluda Estefanía, asistente legal del despacho. Ponemos a su disposición nuestro Sitio Web Oficial donde podrá conocer a fondo nuestros servicios y verificar nuestras credenciales:\n\n🌐 *Portal Oficial:* https://bufete-hernandez.vercel.app/\n\n📋 *En nuestro sitio web usted podrá:* \n• ⚖️ Verificar la matrícula activa ante The State Bar of California (#177856).\n• 🇺🇸 Conocer nuestra cobertura y representación legal en los 50 estados.\n• 🛡️ Conocer la garantía de protección contra fraudes migratorios y tramitadores.\n• 📊 Usar el Evaluador de Casos en 3 pasos para conocer sus opciones.\n\nQuedamos a su entera disposición. ¡Su tranquilidad legal es nuestra prioridad!'
+  },
+  {
+    id: 'AUD-07',
+    titulo: 'Envío de Web en Conversación (Seguimiento Natural)',
+    subtitulo: 'Para clientes con los que ya se está hablando (sin saludos robóticos)',
+    categoria: 'bienvenida',
+    icono: 'Sparkles',
+    duracionEstimada: '0:22 min',
+    guionVoz: 'Mire, mientras coordinamos la llamada o mientras tiene su tiempito libre, por aquí le voy compartiendo de una vez nuestra página web oficial para que le eche un ojo con calma. Ahí puede ver la experiencia del licenciado David Carrillo, los casos que llevamos y verificar su licencia oficial. Nos avisa apenas se desocupe para marcarle. ¡Quedamos muy atentos!',
+    mensajeWhatsApp: 'Mire, mientras tiene un espacio libre y coordinamos la llamada, le voy dejando por aquí el enlace directo a nuestra página oficial para que le eche un vistazo con calma:\n\n👉 https://bufete-hernandez.vercel.app/\n\nAhí puede ver los casos que llevamos en todo Estados Unidos, la experiencia del despacho y verificar la licencia oficial del Licenciado David Carrillo. \n\nApenas se desocupe me avisa por aquí mismo para hacer la llamada. ¡Quedamos atentos!'
   }
 ];
 
