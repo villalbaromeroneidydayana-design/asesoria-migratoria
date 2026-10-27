@@ -806,6 +806,16 @@ export const ASSISTANT_AUDIOS: AssistantAudioTemplate[] = [
     duracionEstimada: '0:40 min',
     guionVoz: 'Muy buenas noticias de parte del Licenciado David Antony Carrillo. Hemos logrado que se fije el monto de la fianza para la liberación de su ser querido. Le recordamos al fiador que el pago debe realizarse a través del sistema oficial de ICE CeBONDS o en la oficina designada con cheque de caja certificado. En cuanto se confirme la transacción, coordinaremos la salida inmediata del centro de detención.',
     mensajeWhatsApp: '✅ *Fianza Aprobada: Pasos para la Liberación Inmediata*\n\nLe saluda la oficina del Licenciado David Antony Carrillo. El juez/ICE ha autorizado la fianza. \n\n💳 *Instrucciones de Pago:* El fiador debe realizar el pago oficial mediante el portal CeBONDS de ICE o cheque de caja bancario certificado. No entregue efectivo a intermediarios. Contáctenos para guiarle paso a paso.'
+  },
+  {
+    id: 'AUD-06',
+    titulo: 'Presentación del Sitio Web Oficial y Credenciales',
+    subtitulo: 'Envío de enlace oficial, matrícula CalBar y evaluador interactivo',
+    categoria: 'bienvenida',
+    icono: 'Globe',
+    duracionEstimada: '0:35 min',
+    guionVoz: 'Hola, muy buenas tardes. Le saluda Estefanía, asistente legal del despacho del Licenciado David Antony Carrillo. Le comparto este audio para invitarle a conocer nuestra página web oficial: bufete guión hernandez punto vercel punto app. En nuestro portal podrá verificar las credenciales del licenciado ante la Barra de Abogados de California matrícula 177856, conocer nuestras áreas de defensa migratoria y realizar una preevaluación interactiva de su caso. Recuerde que al ser ley federal, representamos a familias en cualquiera de los 50 estados. Le dejamos el enlace en el mensaje de texto para que lo revise con calma.',
+    mensajeWhatsApp: '🏛️ *BUFETE JURÍDICO | LIC. DAVID ANTONY CARRILLO*\n_Abogado Colegiado en Inmigración y Cortes Federales de EE.UU._\n\nEstimado/a cliente, le saluda Estefanía, asistente legal del despacho. Ponemos a su disposición nuestro Sitio Web Oficial donde podrá conocer a fondo nuestros servicios y verificar nuestras credenciales:\n\n🌐 *Portal Oficial:* https://bufete-hernandez.vercel.app/\n\n📋 *En nuestro sitio web usted podrá:* \n• ⚖️ Verificar la matrícula activa ante The State Bar of California (#177856).\n• 🇺🇸 Conocer nuestra cobertura y representación legal en los 50 estados.\n• 🛡️ Conocer la garantía de protección contra fraudes migratorios y tramitadores.\n• 📊 Usar el Evaluador de Casos en 3 pasos para conocer sus opciones.\n\nQuedamos a su entera disposición. ¡Su tranquilidad legal es nuestra prioridad!'
   }
 ];
 
