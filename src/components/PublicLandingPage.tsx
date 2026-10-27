@@ -149,21 +149,20 @@ export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({
             <span className="text-emerald-400 font-medium">Jurisdicción Federal en los 50 Estados de EE.UU.</span>
           </div>
 
-          <div className="flex items-center gap-4 text-slate-300">
+          <div className="flex items-center gap-3 text-slate-300">
             <a 
               href={`tel:${LAWYER_PROFILE.telefono.replace(/[^0-9+]/g, '')}`} 
-              className="hover:text-amber-300 flex items-center gap-1.5 transition"
+              className="hover:text-amber-300 flex items-center gap-1.5 transition text-xs font-semibold"
             >
               <PhoneCall className="w-3.5 h-3.5 text-emerald-400" />
               <span className="font-mono font-bold">{LAWYER_PROFILE.telefono}</span>
             </a>
-            <button
-              onClick={onEnterCRM}
-              className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-bold flex items-center gap-1.5 transition cursor-pointer"
+            <a
+              href="#evaluador"
+              className="hidden sm:inline-flex px-3 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-semibold transition"
             >
-              <Lock className="w-3 h-3" />
-              <span>Acceso Panel Legal / CRM</span>
-            </button>
+              Evaluar Caso Gratis
+            </a>
           </div>
         </div>
       </div>
@@ -1103,10 +1102,11 @@ export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({
               <span>•</span>
               <button 
                 onClick={onEnterCRM} 
-                className="text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1 cursor-pointer"
+                className="text-slate-600 hover:text-slate-400 text-[10px] flex items-center gap-1 cursor-pointer transition ml-1"
+                title="Acceso Exclusivo al Personal Autorizado del Despacho"
               >
-                <Lock className="w-3 h-3" />
-                <span>Acceso Abogados / CRM</span>
+                <Lock className="w-2.5 h-2.5" />
+                <span>Portal Interno</span>
               </button>
             </div>
           </div>

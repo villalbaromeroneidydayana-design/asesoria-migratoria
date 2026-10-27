@@ -16,7 +16,8 @@ import {
   UserCheck,
   Calculator,
   Globe,
-  Search
+  Search,
+  Lock
 } from 'lucide-react';
 import { LAWYER_PROFILE } from '../data/initialData';
 
@@ -28,6 +29,7 @@ interface NavbarProps {
   onOpenBulkImport?: () => void;
   onOpenProfile?: () => void;
   onViewWebsite?: () => void;
+  onLogout?: () => void;
   clientsCount: number;
   urgentCount: number;
 }
@@ -40,6 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenBulkImport,
   onOpenProfile,
   onViewWebsite,
+  onLogout,
   clientsCount,
   urgentCount
 }) => {
@@ -113,6 +116,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <Globe className="w-3.5 h-3.5 text-amber-400" />
                 <span className="hidden sm:inline">🌐 Sitio Web</span>
+              </button>
+            )}
+
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-300 border border-red-500/30 text-xs font-semibold shadow-md transition cursor-pointer"
+                title="Cerrar Sesión del CRM Legal"
+              >
+                <Lock className="w-3.5 h-3.5 text-red-400" />
+                <span className="hidden sm:inline">Cerrar Sesión</span>
               </button>
             )}
 

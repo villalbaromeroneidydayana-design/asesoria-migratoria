@@ -15,19 +15,31 @@ import { LawyerProfileModal } from './components/LawyerProfileModal';
 import { FormulariosYTarifas } from './components/FormulariosYTarifas';
 import { PublicLandingPage } from './components/PublicLandingPage';
 import { MigraConnectConsole } from './components/MigraConnectConsole';
+import { CrmAuthModal } from './components/CrmAuthModal';
 import { INITIAL_CLIENTS, USER_INITIAL_LEADS, LAWYER_PROFILE } from './data/initialData';
 import type { ClientLead, EstefaniaMessageRecord } from './types';
 import { Scale, ShieldCheck } from 'lucide-react';
 
 export function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('bufete_crm_authenticated') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   const [viewMode, setViewMode] = useState<'landing' | 'crm'>(() => {
     try {
-      if (typeof window !== 'undefined' && window.location.hash === '#crm') {
+      const isAuth = localStorage.getItem('bufete_crm_authenticated') === 'true';
+      if (typeof window !== 'undefined' && window.location.hash === '#crm' && isAuth) {
         return 'crm';
       }
       const saved = localStorage.getItem('bufete_legal_view_mode');
-      if (saved === 'crm' || saved === 'landing') {
-        return saved;
+      if (saved === 'crm' && isAuth) {
+        return 'crm';
       }
     } catch (e) {
       // ignore
@@ -35,7 +47,21 @@ export function App() {
     return 'landing';
   });
 
+  // Si alguien intenta abrir #crm sin estar autenticado, bloquearlo y pedir el PIN
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash === '#crm') {
+      if (!isAuthenticated) {
+        setIsAuthModalOpen(true);
+        setViewMode('landing');
+      }
+    }
+  }, [isAuthenticated]);
+
   const handleSwitchView = (mode: 'landing' | 'crm') => {
+    if (mode === 'crm' && !isAuthenticated) {
+      setIsAuthModalOpen(true);
+      return;
+    }
     setViewMode(mode);
     try {
       localStorage.setItem('bufete_legal_view_mode', mode);
@@ -47,6 +73,30 @@ export function App() {
     } catch (e) {
       // ignore
     }
+  };
+
+  const handleAuthenticatedSuccess = () => {
+    setIsAuthenticated(true);
+    setIsAuthModalOpen(false);
+    setViewMode('crm');
+    try {
+      localStorage.setItem('bufete_legal_view_mode', 'crm');
+      window.location.hash = '#crm';
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('bufete_crm_authenticated');
+      localStorage.setItem('bufete_legal_view_mode', 'landing');
+    } catch (e) {
+      // ignore
+    }
+    setIsAuthenticated(false);
+    setViewMode('landing');
+    window.history.replaceState(null, '', window.location.pathname);
   };
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -163,10 +213,17 @@ export function App() {
 
   if (viewMode === 'landing') {
     return (
-      <PublicLandingPage
-        onEnterCRM={() => handleSwitchView('crm')}
-        onSaveLeadFromWebsite={handleSaveNewClient}
-      />
+      <>
+        <PublicLandingPage
+          onEnterCRM={() => handleSwitchView('crm')}
+          onSaveLeadFromWebsite={handleSaveNewClient}
+        />
+        <CrmAuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          onAuthenticated={handleAuthenticatedSuccess}
+        />
+      </>
     );
   }
 
@@ -181,6 +238,7 @@ export function App() {
         onOpenBulkImport={() => setIsBulkImportOpen(true)}
         onOpenProfile={() => setIsProfileModalOpen(true)}
         onViewWebsite={() => handleSwitchView('landing')}
+        onLogout={handleLogout}
         clientsCount={clients.length}
         urgentCount={urgentCount}
       />
