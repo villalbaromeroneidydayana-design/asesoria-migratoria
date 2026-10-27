@@ -590,14 +590,31 @@ export const CallIntakeWizard: React.FC<CallIntakeWizardProps> = ({
               )}
 
               {currentStepIndex === 7 && (
-                <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-800/40 space-y-3">
-                  <div className="flex items-center gap-2 text-emerald-300 font-bold text-xs uppercase tracking-wider">
-                    <HeartHandshake className="w-4 h-4" />
-                    <span>Compromiso de Trabajo Mutuo</span>
+                <div className="space-y-3">
+                  <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-800/40 space-y-2">
+                    <div className="flex items-center gap-2 text-emerald-300 font-bold text-xs uppercase tracking-wider">
+                      <HeartHandshake className="w-4 h-4" />
+                      <span>Compromiso de Trabajo Mutuo</span>
+                    </div>
+                    <p className="text-xs text-slate-200 leading-relaxed">
+                      Recuerda enfatizarle al cliente: <strong>"Usted se encarga de ir a realizarse su examen médico y poner sus huellas biométricas. De todo lo demás —la representación legal, la corte con el juez, la moción de fianza y la defensa jurídica— nos encargamos nosotros en el bufete."</strong>
+                    </p>
                   </div>
-                  <p className="text-xs text-slate-200 leading-relaxed">
-                    Recuerda enfatizarle al cliente: <strong>"Usted se encarga de ir a realizarse su examen médico y poner sus huellas biométricas. De todo lo demás —la representación legal, la corte con el juez, la moción de fianza y la defensa jurídica— nos encargamos nosotros en el bufete."</strong>
-                  </p>
+
+                  <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/15 via-slate-900 to-amber-950/20 border border-amber-500/30 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Cierre & Derivación al Case Manager (Gestor de Casos)</span>
+                      </span>
+                      <span className="text-[10px] text-amber-300/80 font-mono bg-amber-500/20 px-2 py-0.5 rounded-md">
+                        Pronunciación: [Kéis Mánayer]
+                      </span>
+                    </div>
+                    <p className="text-xs text-amber-100 italic leading-relaxed">
+                      “{nombre ? `Don ${nombre}` : 'Don cliente'}, perfecto. Con estos primeros datos en su expediente, el siguiente paso formal es agendarle su cita privada con nuestro <strong>Case Manager (el Gestor de Casos del despacho)</strong>. Él es un profesional bilingüe (inglés y español) que se encarga de revisar minuciosamente sus documentos, el historial de su trámite y estructurar la propuesta legal. Él se sentará con usted para explicarle con total claridad el plan de acción, los costos oficiales y las facilidades de pago del despacho para iniciar de inmediato bajo la supervisión del Licenciado David Carrillo. ¿Qué horario le queda más cómodo: en la mañana o en la tarde?”
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
