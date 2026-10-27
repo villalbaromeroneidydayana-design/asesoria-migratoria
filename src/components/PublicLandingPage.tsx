@@ -328,14 +328,34 @@ export const PublicLandingPage: React.FC<PublicLandingPageProps> = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+            <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3 hover:border-amber-500/40 transition">
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
                 <Building2 className="w-5 h-5" />
               </div>
               <h3 className="font-bold text-white text-base">Sede Principal en California</h3>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Oficina legal registrada en UC Berkeley School of Law, California Constitution Center. Matrícula activa #177856 ante The State Bar of California.
+                Adscripción y despacho en <strong className="text-slate-200">UC Berkeley School of Law</strong> (California Constitution Center). Matrícula activa <strong className="text-slate-200">#177856</strong> ante The State Bar of California.
               </p>
+              <div className="pt-1 flex flex-col gap-1.5 text-xs">
+                <a
+                  href={LAWYER_PROFILE.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-amber-400 hover:text-amber-300 font-medium underline underline-offset-2 transition"
+                >
+                  <span>Portal Institucional Berkeley Law</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+                <a
+                  href={LAWYER_PROFILE.barVerificationUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-medium underline underline-offset-2 transition"
+                >
+                  <span>Verificar CalBar Oficial #177856</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
             </div>
 
             <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
