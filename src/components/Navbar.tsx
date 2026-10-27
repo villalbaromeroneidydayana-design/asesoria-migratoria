@@ -15,7 +15,8 @@ import {
   Upload,
   UserCheck,
   Calculator,
-  Globe
+  Globe,
+  Search
 } from 'lucide-react';
 import { LAWYER_PROFILE } from '../data/initialData';
 
@@ -44,10 +45,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const navItems = [
     { id: 'dashboard', label: 'Panel Principal', icon: LayoutDashboard },
-    { id: 'tarifas', label: 'Formularios & Tarifas', icon: Calculator, highlight: true },
+    { id: 'migraconnect', label: '🔍 Rastreador MigraConnect', icon: Search, highlight: true },
+    { id: 'tarifas', label: 'Formularios & Tarifas', icon: Calculator },
     { id: 'intake', label: 'Intake / Guía de Llamada', icon: PhoneCall },
     { id: 'clients', label: 'Expedientes & Clientes', icon: Users, badge: clientsCount },
-    { id: 'ubicaciones', label: 'Rastreador & Sedes Oficiales', icon: Compass },
+    { id: 'ubicaciones', label: 'Sedes Oficiales', icon: Compass },
     { id: 'estefania', label: 'Estefanía (Asistente)', icon: Bot },
     { id: 'tramites', label: 'Médicos & Biométricos', icon: Stethoscope },
     { id: 'fianzas', label: 'Fianzas & Cortes (Juez)', icon: ShieldAlert, alertBadge: urgentCount },

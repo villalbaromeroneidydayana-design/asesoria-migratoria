@@ -14,6 +14,7 @@ import { BulkImportModal } from './components/BulkImportModal';
 import { LawyerProfileModal } from './components/LawyerProfileModal';
 import { FormulariosYTarifas } from './components/FormulariosYTarifas';
 import { PublicLandingPage } from './components/PublicLandingPage';
+import { MigraConnectConsole } from './components/MigraConnectConsole';
 import { INITIAL_CLIENTS, USER_INITIAL_LEADS, LAWYER_PROFILE } from './data/initialData';
 import type { ClientLead, EstefaniaMessageRecord } from './types';
 import { Scale, ShieldCheck } from 'lucide-react';
@@ -201,6 +202,13 @@ export function App() {
             onLoadUserLeads={handleLoadUserLeads}
             onOpenBulkImport={() => setIsBulkImportOpen(true)}
             onOpenProfile={() => setIsProfileModalOpen(true)}
+          />
+        )}
+
+        {activeTab === 'migraconnect' && (
+          <MigraConnectConsole
+            clients={clients}
+            onUpdateClient={handleUpdateClient}
           />
         )}
 

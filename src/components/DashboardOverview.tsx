@@ -183,6 +183,15 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               </button>
             )}
 
+            <button
+              onClick={() => onNavigateToTab('migraconnect')}
+              className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-600/30 to-indigo-600/20 hover:from-blue-600/40 text-blue-200 font-bold text-sm flex items-center justify-center gap-2 border border-blue-500/40 transition cursor-pointer shadow-lg"
+              title="Rastreo y solicitud de números para MigraConnect, USCIS y Corte"
+            >
+              <Search className="w-4 h-4 text-blue-400" />
+              <span>🔍 Rastreador MigraConnect</span>
+            </button>
+
             {/* Primary Action Button: + NUEVO CLIENTE */}
             <button
               onClick={onOpenNewClientModal}
